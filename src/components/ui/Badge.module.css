@@ -2,51 +2,58 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.625rem;
+  padding: 0.25rem 0.65rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   border-radius: var(--radius-full);
-  line-height: 1;
+  line-height: 1.1;
   text-transform: capitalize;
   border: 1px solid transparent;
   white-space: nowrap;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
 }
 
 .open {
-  background-color: var(--status-open-bg);
-  color: var(--status-open-text);
-  border-color: var(--status-open-border);
+  background: rgba(14, 165, 233, 0.15);
+  color: #38BDF8;
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
 }
 
 .resolved {
-  background-color: var(--status-resolved-bg);
-  color: var(--status-resolved-text);
-  border-color: var(--status-resolved-border);
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
 }
 
 .acknowledged {
-  background-color: var(--status-ack-bg);
-  color: var(--status-ack-text);
-  border-color: var(--status-ack-border);
+  background: rgba(168, 85, 247, 0.15);
+  color: #C084FC;
+  border-color: rgba(192, 132, 252, 0.4);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
 }
 
 .overdue {
-  background-color: var(--status-overdue-bg);
-  color: var(--status-overdue-text);
-  border-color: var(--status-overdue-border);
-  font-weight: 700;
+  background: rgba(239, 68, 68, 0.2);
+  color: #FCA5A5;
+  border-color: rgba(239, 68, 68, 0.5);
+  font-weight: 800;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.35);
 }
 
 .category {
-  background-color: var(--color-bg-subtle);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-secondary);
   border-color: var(--color-border-subtle);
 }
 
 .role {
-  background-color: #EDE9FE;
-  color: #6D28D9;
-  border-color: #DDD6FE;
+  background: rgba(168, 85, 247, 0.15);
+  color: #D8B4FE;
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
 }
 
 .dot {
@@ -54,6 +61,7 @@
   height: 6px;
   border-radius: 50%;
   background-color: currentColor;
+  box-shadow: 0 0 6px currentColor;
 }
 
 .pulseDot {
@@ -61,19 +69,20 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background-color: var(--status-overdue-text);
+  background-color: #EF4444;
+  box-shadow: 0 0 8px #EF4444;
 }
 
 .pulseDot::after {
   content: '';
   position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
   border-radius: 50%;
-  background-color: rgba(220, 38, 38, 0.4);
-  animation: pulse 1.5s infinite;
+  background-color: rgba(239, 68, 68, 0.5);
+  animation: pulse 1.6s infinite;
 }
 
 @keyframes pulse {
@@ -82,7 +91,7 @@
     opacity: 0.8;
   }
   100% {
-    transform: scale(2);
+    transform: scale(2.4);
     opacity: 0;
   }
 }

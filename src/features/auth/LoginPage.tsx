@@ -212,14 +212,14 @@ export const LoginPage: React.FC = () => {
           </form>
 
           {/* Quick Demo Pre-fills for Evaluators */}
-          <div style={{ marginTop: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--color-text-muted)', textTransform: 'uppercase' }}>
+          <div className={styles.quickFillGroup}>
+            <span className={styles.quickFillLabel}>
               Quick Fill Test Accounts:
             </span>
-            <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
+            <div className={styles.quickFillRow}>
               <button
                 type="button"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: 'var(--color-bg-subtle)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-subtle)', cursor: 'pointer' }}
+                className={styles.quickFillBtn}
                 onClick={() => {
                   setIsAdminMode(false);
                   setEmail('student@campus.edu');
@@ -229,7 +229,7 @@ export const LoginPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: 'var(--color-bg-subtle)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-subtle)', cursor: 'pointer' }}
+                className={styles.quickFillBtn}
                 onClick={() => {
                   setIsAdminMode(false);
                   setEmail('faculty@campus.edu');
@@ -239,7 +239,7 @@ export const LoginPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: 'var(--color-bg-subtle)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-subtle)', cursor: 'pointer' }}
+                className={styles.quickFillBtn}
                 onClick={() => {
                   setIsAdminMode(false);
                   setEmail('maintenance@campus.edu');
@@ -249,7 +249,7 @@ export const LoginPage: React.FC = () => {
               </button>
               <button
                 type="button"
-                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', borderRadius: 4, background: 'var(--color-bg-subtle)', color: 'var(--color-text-secondary)', border: '1px solid var(--color-border-subtle)', cursor: 'pointer' }}
+                className={styles.quickFillBtn}
                 onClick={() => {
                   setIsAdminMode(true);
                   setEmail('admin@campus.edu');

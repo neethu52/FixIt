@@ -1,75 +1,173 @@
 /**
- * FixIt Design System Tokens — Premium Edition
- * Midnight Navy, Electric Blue, Restrained Teal, Warm Amber, Critical Red, Clean Neutrals.
+ * FixIt Design System Tokens — Soft Sunset Glass Edition
+ *
+ * Global Palette:
+ * - Warm Charcoal: #343039
+ * - Muted Cocoa: #55413F
+ * - Dusty Coral: #B97863
+ * - Soft Peach: #E9A184
+ * - Warm Neutral: #E8DED5
+ *
+ * Preserves high-readability glassmorphism surfaces, cyan/violet accents, buttons, and typography.
  */
 
 :root {
-  /* Brand Palettes */
-  --color-navy-darkest: #070D1F;
-  --color-navy-primary: #0F172A;
-  --color-navy-surface: #1E293B;
-  --color-navy-border: #334155;
+  /* Soft Sunset Palette */
+  --color-warm-charcoal: #343039;
+  --color-charcoal-deep: #252229;
+  --color-charcoal-dark: #1E1B21;
+  --color-muted-cocoa: #55413F;
+  --color-dusty-coral: #B97863;
+  --color-soft-peach: #E9A184;
+  --color-warm-neutral: #E8DED5;
 
-  --color-electric-blue: #2563EB;
-  --color-electric-blue-hover: #1D4ED8;
-  --color-electric-blue-light: #EFF6FF;
-  --color-electric-blue-border: #BFDBFE;
-  --color-electric-blue-glow: rgba(37, 99, 235, 0.25);
+  /* Ambient Lighting & Glows */
+  --ambient-peach-glow: rgba(233, 161, 132, 0.16);
+  --ambient-coral-glow: rgba(185, 120, 99, 0.18);
+  --ambient-cocoa-depth: rgba(85, 65, 63, 0.4);
+  --ambient-neutral-highlight: rgba(232, 222, 213, 0.08);
 
-  /* Neutrals */
-  --color-bg-app: #F8FAFC;
-  --color-bg-card: #FFFFFF;
-  --color-bg-subtle: #F1F5F9;
-  --color-bg-hover: #E2E8F0;
+  --color-peach-glow: rgba(233, 161, 132, 0.22);
+  --color-dusty-coral-glow: rgba(185, 120, 99, 0.25);
+  --color-cocoa-ambient: rgba(85, 65, 63, 0.35);
 
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748B;
-  --color-text-inverse: #FFFFFF;
+  /* Shared Global Background Gradients */
+  --bg-canvas-gradient: 
+    radial-gradient(circle at 14% 12%, rgba(233, 161, 132, 0.16) 0%, transparent 45%),
+    radial-gradient(circle at 86% 16%, rgba(185, 120, 99, 0.18) 0%, transparent 48%),
+    radial-gradient(circle at 50% 88%, rgba(85, 65, 63, 0.42) 0%, transparent 60%),
+    radial-gradient(circle at 75% 72%, rgba(233, 161, 132, 0.1) 0%, transparent 45%),
+    linear-gradient(145deg, #2A2630 0%, #343039 42%, #26212B 100%);
 
-  --color-border-subtle: #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  --bg-hero-surface: 
+    radial-gradient(circle at 18% 22%, rgba(233, 161, 132, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 82% 25%, rgba(185, 120, 99, 0.15) 0%, transparent 50%),
+    linear-gradient(145deg, rgba(52, 48, 57, 0.86) 0%, rgba(37, 34, 41, 0.92) 100%);
+
+  --bg-card-glass: linear-gradient(145deg, rgba(48, 44, 54, 0.85) 0%, rgba(35, 31, 40, 0.88) 100%);
+  --bg-card-glass-hover: linear-gradient(145deg, rgba(56, 51, 63, 0.9) 0%, rgba(42, 37, 48, 0.93) 100%);
+  --bg-panel-elevated: linear-gradient(145deg, rgba(58, 53, 65, 0.88) 0%, rgba(40, 36, 46, 0.94) 100%);
+
+  --line-sunset-highlight: linear-gradient(90deg, transparent 0%, rgba(185, 120, 99, 0.35) 25%, rgba(233, 161, 132, 0.75) 50%, rgba(185, 120, 99, 0.35) 75%, transparent 100%);
+
+  /* Canvas & Surface Palettes */
+  --color-bg-base: #252229;
+  --color-bg-app: #343039;
+  --color-bg-subtle: rgba(37, 34, 41, 0.7);
+  --color-bg-surface: rgba(48, 44, 53, 0.82);
+  --color-bg-card: rgba(42, 38, 47, 0.82);
+  --color-bg-card-hover: rgba(52, 47, 58, 0.9);
+  --color-bg-card-solid: #2B2732;
+  --color-bg-elevated: rgba(55, 50, 61, 0.88);
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+
+  /* Translucent Glassmorphism Tokens */
+  --glass-bg: rgba(42, 38, 47, 0.8);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-border-hover: rgba(233, 161, 132, 0.35);
+  --glass-border-glow: rgba(185, 120, 99, 0.4);
+  --glass-blur: blur(24px);
+  --glass-blur-sm: blur(12px);
+
+  /* Text & Hierarchy (Optimized for contrast on soft sunset glass surfaces) */
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #CBD5E1;
+  --color-text-muted: #94A3B8;
+  --color-text-faint: #64748B;
+  --color-text-inverse: #060913;
+
+  /* Borders & Dividers */
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
+  --color-border-glow: rgba(185, 120, 99, 0.45);
+
+  /* Vibrant Accent Colors (Preserved for identity & interactions) */
+  /* Electric Cyan & Neon Blue (Primary FixIt Brand Identity) */
+  --color-electric-cyan: #00F2FE;
+  --color-cyan-glow: rgba(0, 242, 254, 0.35);
+  --color-electric-blue: #38BDF8;
+  --color-electric-blue-hover: #0EA5E9;
+  --color-electric-blue-light: rgba(56, 189, 248, 0.14);
+  --color-electric-blue-border: rgba(56, 189, 248, 0.35);
+  --color-electric-blue-glow: rgba(56, 189, 248, 0.4);
+
+  /* Vibrant Purple & Violet (Secondary Accents) */
+  --color-violet-primary: #A855F7;
+  --color-violet-hover: #9333EA;
+  --color-violet-light: rgba(168, 85, 247, 0.14);
+  --color-violet-border: rgba(168, 85, 247, 0.35);
+  --color-violet-glow: rgba(168, 85, 247, 0.45);
+
+  /* Hot Pink & Magenta */
+  --color-magenta-primary: #F43F5E;
+  --color-pink-primary: #EC4899;
+  --color-pink-light: rgba(236, 72, 153, 0.14);
+  --color-pink-border: rgba(236, 72, 153, 0.35);
+  --color-pink-glow: rgba(236, 72, 153, 0.45);
+
+  /* Emerald Green & Mint (Resolved / Active Success) */
+  --color-emerald-primary: #10B981;
+  --color-mint-primary: #34D399;
+  --color-mint-light: rgba(16, 185, 129, 0.14);
+  --color-mint-border: rgba(16, 185, 129, 0.35);
+  --color-mint-glow: rgba(16, 185, 129, 0.4);
+
+  /* Bright Orange & Amber (Pending / Attention Required) */
+  --color-amber-primary: #F59E0B;
+  --color-orange-primary: #FB923C;
+  --color-warning-text: #FBBF24;
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
+  --color-warning-border: rgba(245, 158, 11, 0.35);
+  --color-warning-glow: rgba(245, 158, 11, 0.35);
+
+  /* Subtle Red & Coral (Overdue / Critical Alerts) */
+  --color-coral-primary: #F87171;
+  --color-coral-dark: #EF4444;
+  --status-overdue-text: #FCA5A5;
+  --status-overdue-bg: rgba(239, 68, 68, 0.16);
+  --status-overdue-border: rgba(239, 68, 68, 0.45);
+  --status-overdue-glow: rgba(239, 68, 68, 0.45);
 
   /* Status Colors */
-  /* Open / In-progress: Electric Blue */
-  --status-open-text: #1D4ED8;
-  --status-open-bg: #EFF6FF;
-  --status-open-border: #BFDBFE;
+  --status-open-text: #38BDF8;
+  --status-open-bg: rgba(14, 165, 233, 0.14);
+  --status-open-border: rgba(14, 165, 233, 0.35);
 
-  /* Resolved: Restrained Teal */
-  --status-resolved-text: #0F766E;
-  --status-resolved-bg: #F0FDFA;
-  --status-resolved-border: #99F6E4;
+  --status-resolved-text: #34D399;
+  --status-resolved-bg: rgba(16, 185, 129, 0.14);
+  --status-resolved-border: rgba(16, 185, 129, 0.35);
 
-  /* Acknowledged: Emerald */
-  --status-ack-text: #065F46;
-  --status-ack-bg: #ECFDF5;
-  --status-ack-border: #A7F3D0;
+  --status-ack-text: #C084FC;
+  --status-ack-bg: rgba(168, 85, 247, 0.14);
+  --status-ack-border: rgba(168, 85, 247, 0.35);
 
-  /* Overdue / Critical: Red */
-  --status-overdue-text: #B91C1C;
-  --status-overdue-bg: #FEF2F2;
-  --status-overdue-border: #FECACA;
-
-  /* Warning: Amber */
-  --color-warning-text: #B45309;
-  --color-warning-bg: #FFFBEB;
-  --color-warning-border: #FDE68A;
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #00F2FE 0%, #3B82F6 50%, #8B5CF6 100%);
+  --gradient-cyber: linear-gradient(135deg, #38BDF8 0%, #818CF8 50%, #C084FC 100%);
+  --gradient-neon-pink: linear-gradient(135deg, #F43F5E 0%, #EC4899 50%, #A855F7 100%);
+  --gradient-mint: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --gradient-amber: linear-gradient(135deg, #F59E0B 0%, #FB923C 100%);
+  --gradient-dark-card: linear-gradient(145deg, rgba(48, 44, 54, 0.85) 0%, rgba(35, 31, 40, 0.85) 100%);
 
   /* Radii */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Modern Refined Shadows */
-  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
-  --shadow-sm: 0 2px 4px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
-  --shadow-md: 0 6px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
-  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -4px rgba(15, 23, 42, 0.04);
-  --shadow-xl: 0 24px 36px -6px rgba(15, 23, 42, 0.14), 0 10px 14px -6px rgba(15, 23, 42, 0.06);
+  /* Shadows with Ambient Glows */
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 26px -4px rgba(0, 0, 0, 0.45), 0 2px 8px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 16px 40px -6px rgba(0, 0, 0, 0.55), 0 6px 16px -4px rgba(0, 0, 0, 0.35);
+  --shadow-xl: 0 24px 52px -8px rgba(0, 0, 0, 0.65), 0 10px 24px -5px rgba(0, 0, 0, 0.45);
+  --shadow-glow-cyan: 0 0 25px rgba(0, 242, 254, 0.25);
+  --shadow-glow-blue: 0 0 25px rgba(56, 189, 248, 0.25);
+  --shadow-glow-violet: 0 0 25px rgba(168, 85, 247, 0.25);
+  --shadow-glow-sunset: 0 0 30px rgba(185, 120, 99, 0.3);
 
   /* Typography */
   --font-family-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -78,4 +176,5 @@
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
   --transition-normal: 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }

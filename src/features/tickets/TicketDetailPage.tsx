@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import styles from './TicketDetailPage.module.css';
-import { getTicketById, deleteTicket, acknowledgeTicket, updateTicket } from '@/api/fixit.api';
+import { getTicketById, deleteTicket, acknowledgeTicket, updateTicket, reopenTicket } from '@/api/fixit.api';
 import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from '@/api/config';
 import type { Ticket } from '@/api/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,7 +9,8 @@ import { useToast } from '@/components/ui/Toast';
 import {
   Button,
   Badge,
-  StatusTimeline,
+  Modal,
+  TicketTimeline,
   ConfirmDialog,
   EmptyState,
   Skeleton,
@@ -61,9 +62,15 @@ export const TicketDetailPage: React.FC = () => {
   const [isDeletingPhoto, setIsDeletingPhoto] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
 
+  // Timeline Refresh Trigger
+  const [timelineRefreshTrigger, setTimelineRefreshTrigger] = useState(0);
+
   // Action loadings
   const [isDeleting, setIsDeleting] = useState(false);
   const [isAcknowledging, setIsAcknowledging] = useState(false);
+  const [isRaisingIssue, setIsRaisingIssue] = useState(false);
+  const [showRaiseModal, setShowRaiseModal] = useState(false);
+  const [raiseComment, setRaiseComment] = useState('');
 
   const fetchTicket = async (signal?: AbortSignal) => {
     if (!ticketId) return;
@@ -163,11 +170,30 @@ export const TicketDetailPage: React.FC = () => {
     try {
       const updated = await acknowledgeTicket(ticket.id);
       setTicket(updated);
+      setTimelineRefreshTrigger((prev) => prev + 1);
       toast.success('Resolution Acknowledged', 'Thank you for confirming resolution of this issue.');
     } catch (err: any) {
       toast.error('Acknowledgement Failed', err?.message || 'Failed to acknowledge ticket.');
     } finally {
       setIsAcknowledging(false);
+    }
+  };
+
+  // Handle Student Raising Issue Again
+  const handleRaiseIssueAgain = async () => {
+    if (!ticket) return;
+    setIsRaisingIssue(true);
+    try {
+      const updated = await reopenTicket(ticket.id, raiseComment.trim() || 'Issue not resolved satisfactorily.');
+      setTicket(updated);
+      setTimelineRefreshTrigger((prev) => prev + 1);
+      setShowRaiseModal(false);
+      setRaiseComment('');
+      toast.success('Issue Raised Again', 'Your concern has been submitted. The maintenance team will review it.');
+    } catch (err: any) {
+      toast.error('Failed to Raise Issue', err?.message || 'Could not raise the issue again.');
+    } finally {
+      setIsRaisingIssue(false);
     }
   };
 
@@ -256,7 +282,7 @@ export const TicketDetailPage: React.FC = () => {
             </>
           )}
 
-          {isResolved && (isOwner || !isMaintenanceStaff) && (
+          {isResolved && (isOwner || !isMaintenanceStaff) && !ticket.reopened_at && (
             <Button
               variant="primary"
               size="sm"
@@ -265,6 +291,17 @@ export const TicketDetailPage: React.FC = () => {
               icon={<CheckCircleIcon size={16} />}
             >
               Acknowledge Resolution
+            </Button>
+          )}
+
+          {isResolved && isOwner && !isMaintenanceStaff && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowRaiseModal(true)}
+              icon={<AlertTriangleIcon size={14} />}
+            >
+              Raise Issue Again
             </Button>
           )}
 
@@ -332,13 +369,36 @@ export const TicketDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Visual Status Lifecycle Bar */}
-      <StatusTimeline
-        status={ticket.status}
-        createdAt={ticket.created_at}
-        resolvedAt={ticket.resolved_at}
-        acknowledgedAt={ticket.acknowledged_at}
-      />
+      {/* Overdue alert banner inside ticket detail */}
+      {ticket.overdue && (
+        <div
+          role="alert"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.875rem',
+            background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+            border: '2px solid #F59E0B',
+            borderRadius: '12px',
+            padding: '1rem 1.25rem',
+            fontSize: '0.9375rem',
+            color: '#78350F',
+            fontWeight: 500,
+            boxShadow: '0 2px 12px rgba(245,158,11,0.18)',
+          }}
+        >
+          <AlertTriangleIcon size={22} style={{ color: '#D97706', flexShrink: 0 }} />
+          <div>
+            <div style={{ fontWeight: 800, fontSize: '1rem', marginBottom: '0.2rem' }}>
+              ⚠️ This issue is Overdue!
+            </div>
+            <div style={{ fontSize: '0.875rem', opacity: 0.9 }}>
+              The resolution deadline was <strong>{ticket.expected_by}</strong> and has passed without the issue being resolved.
+              Please contact the maintenance team or raise the issue again.
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Ticket Layout */}
       <div className={styles.grid}>
@@ -503,6 +563,13 @@ export const TicketDetailPage: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* Interactive Ticket Progress Timeline */}
+          <TicketTimeline
+            ticketId={ticket.id}
+            currentStatus={ticket.status}
+            refreshTrigger={timelineRefreshTrigger}
+          />
         </section>
 
         {/* Right Sidebar: Status, Deadlines & Notes */}
@@ -577,6 +644,7 @@ export const TicketDetailPage: React.FC = () => {
         ticket={ticket}
         onSuccess={(updated) => {
           setTicket(updated);
+          setTimelineRefreshTrigger((prev) => prev + 1);
           toast.success('Ticket Updated', 'Maintenance ticket changes have been saved.');
         }}
       />
@@ -588,6 +656,7 @@ export const TicketDetailPage: React.FC = () => {
         targetStatus={statusTarget}
         onSuccess={(updated) => {
           setTicket(updated);
+          setTimelineRefreshTrigger((prev) => prev + 1);
           toast.success(
             updated.status === 'resolved' ? 'Ticket Resolved' : 'Status Updated',
             'Maintenance update has been posted.'
@@ -601,6 +670,7 @@ export const TicketDetailPage: React.FC = () => {
         ticket={ticket}
         onSuccess={(updated) => {
           setTicket(updated);
+          setTimelineRefreshTrigger((prev) => prev + 1);
           toast.success('TAT Updated', 'Turnaround deadline has been recorded.');
         }}
       />
@@ -628,6 +698,62 @@ export const TicketDetailPage: React.FC = () => {
         variant="danger"
         loading={isDeletingPhoto}
       />
+
+      {/* Raise Issue Again Modal */}
+      <Modal
+        isOpen={showRaiseModal}
+        onClose={() => { setShowRaiseModal(false); setRaiseComment(''); }}
+        title="Raise Issue Again"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', margin: 0 }}>
+            If you believe this issue has not been properly resolved, you can raise it again.
+            The maintenance team will be notified and will review your concern.
+          </p>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-text-primary)' }}>
+              Describe the problem (optional)
+            </label>
+            <textarea
+              value={raiseComment}
+              onChange={(e) => setRaiseComment(e.target.value)}
+              placeholder="E.g. The tap is still leaking after the repair..."
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '0.625rem 0.75rem',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                resize: 'vertical',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text-primary)',
+                boxSizing: 'border-box',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setShowRaiseModal(false); setRaiseComment(''); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleRaiseIssueAgain}
+              loading={isRaisingIssue}
+              icon={<AlertTriangleIcon size={14} />}
+            >
+              Submit & Raise Issue
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

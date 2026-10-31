@@ -7,6 +7,29 @@ export type Role = 'student' | 'faculty' | 'office_staff' | 'admin';
 
 export type TicketStatus = 'open' | 'resolved' | 'acknowledged';
 
+export type TimelineStage = 'reported' | 'under_review' | 'in_progress' | 'resolved' | 'closed';
+
+export interface TicketTimelineEvent {
+  id: string;
+  ticket_id: string;
+  status: TimelineStage;
+  stage_name: string;
+  updated_by: string;
+  user_role: Role;
+  comment?: string;
+  created_at: string; // ISO UTC timestamp
+}
+
+export interface CreateTimelineEventPayload {
+  status: TimelineStage;
+  comment?: string;
+}
+
+export interface TicketTimelineResponse {
+  items: TicketTimelineEvent[];
+  count: number;
+}
+
 export interface UserProfile {
   name: string;
   email_id: string;
@@ -72,6 +95,8 @@ export interface Ticket {
   overdue?: boolean; // authoritative indicator from backend
   resolved_at?: string;
   acknowledged_at?: string;
+  reopened_at?: string; // timestamp when ticket was reopened by reporter
+
   maintenance_note?: string; // latest maintenance update note
   notes?: TicketNote[];
   reporter_id?: string;
@@ -110,6 +135,7 @@ export interface UpdateTicketPayload {
 export interface UpdateStatusPayload {
   status: 'open' | 'resolved';
   note: string; // A short maintenance note is required
+  photo?: File; // optional photo for status update (e.g., resolution image)
 }
 
 export interface UpdateTATPayload {

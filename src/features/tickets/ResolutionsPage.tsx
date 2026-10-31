@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import styles from './ResolutionsPage.module.css';
-import { getTickets, acknowledgeTicket } from '@/api/fixit.api';
+import { getTickets, acknowledgeTicket, reopenTicket } from '@/api/fixit.api';
 import type { Ticket } from '@/api/types';
-import { Button, Badge, EmptyState, TicketCardSkeleton } from '@/components/ui';
-import { CheckCircleIcon, ClockIcon, ArrowRightIcon } from '@/components/icons';
+import { Button, Badge, EmptyState, TicketCardSkeleton, Modal } from '@/components/ui';
+import { CheckCircleIcon, ClockIcon, ArrowRightIcon, AlertTriangleIcon } from '@/components/icons';
 import { formatDateToIST } from '@/utils/date';
 
 export const ResolutionsPage: React.FC = () => {
@@ -13,6 +13,11 @@ export const ResolutionsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [acknowledgingId, setAcknowledgingId] = useState<string | null>(null);
+
+  // Raise Issue Again state
+  const [raiseTargetId, setRaiseTargetId] = useState<string | null>(null);
+  const [raiseComment, setRaiseComment] = useState('');
+  const [isRaising, setIsRaising] = useState(false);
 
   const fetchResolved = async (signal?: AbortSignal) => {
     setIsLoading(true);
@@ -53,6 +58,22 @@ export const ResolutionsPage: React.FC = () => {
       alert(err?.message || 'Failed to acknowledge ticket.');
     } finally {
       setAcknowledgingId(null);
+    }
+  };
+
+  const handleRaiseIssueAgain = async () => {
+    if (!raiseTargetId) return;
+    setIsRaising(true);
+    try {
+      await reopenTicket(raiseTargetId, raiseComment.trim() || 'Issue not resolved satisfactorily.');
+      // Remove from resolved list since it's now open again
+      setResolvedTickets((prev) => prev.filter((t) => t.id !== raiseTargetId));
+      setRaiseTargetId(null);
+      setRaiseComment('');
+    } catch (err: any) {
+      alert(err?.message || 'Failed to raise issue again.');
+    } finally {
+      setIsRaising(false);
     }
   };
 
@@ -97,6 +118,7 @@ export const ResolutionsPage: React.FC = () => {
         <div className={styles.cardGrid}>
           {resolvedTickets.map((ticket) => {
             const isResolved = ticket.status === 'resolved';
+            const wasReopened = Boolean((ticket as any).reopened_at);
 
             return (
               <div key={ticket.id} className={styles.resolutionCard}>
@@ -119,17 +141,28 @@ export const ResolutionsPage: React.FC = () => {
                 )}
 
                 <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
-                  {isResolved ? (
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      fullWidth
-                      onClick={() => handleAcknowledge(ticket.id)}
-                      loading={acknowledgingId === ticket.id}
-                      icon={<CheckCircleIcon size={16} />}
-                    >
-                      Acknowledge Repair
-                    </Button>
+                  {isResolved && !wasReopened ? (
+                    <>
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        fullWidth
+                        onClick={() => handleAcknowledge(ticket.id)}
+                        loading={acknowledgingId === ticket.id}
+                        icon={<CheckCircleIcon size={16} />}
+                      >
+                        Acknowledge Repair
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setRaiseTargetId(ticket.id); setRaiseComment(''); }}
+                        icon={<AlertTriangleIcon size={14} />}
+                        title="Raise issue again if not satisfied"
+                      >
+                        Raise Again
+                      </Button>
+                    </>
                   ) : (
                     <Button
                       variant="outline"
@@ -157,6 +190,62 @@ export const ResolutionsPage: React.FC = () => {
           })}
         </div>
       )}
+
+      {/* Raise Issue Again Modal */}
+      <Modal
+        isOpen={Boolean(raiseTargetId)}
+        onClose={() => { setRaiseTargetId(null); setRaiseComment(''); }}
+        title="Raise Issue Again"
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p style={{ fontSize: '0.9rem', color: 'var(--color-text-secondary)', margin: 0 }}>
+            If the repair was not satisfactory, you can raise this issue again.
+            The maintenance team will be notified and will review your concern.
+          </p>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 600, marginBottom: '0.375rem', color: 'var(--color-text-primary)' }}>
+              Describe the problem (optional)
+            </label>
+            <textarea
+              value={raiseComment}
+              onChange={(e) => setRaiseComment(e.target.value)}
+              placeholder="E.g. The tap is still leaking after the repair..."
+              rows={4}
+              style={{
+                width: '100%',
+                padding: '0.625rem 0.75rem',
+                border: '1.5px solid var(--color-border)',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+                resize: 'vertical',
+                background: 'var(--color-surface)',
+                color: 'var(--color-text-primary)',
+                boxSizing: 'border-box',
+                outline: 'none',
+                fontFamily: 'inherit',
+              }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => { setRaiseTargetId(null); setRaiseComment(''); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleRaiseIssueAgain}
+              loading={isRaising}
+              icon={<AlertTriangleIcon size={14} />}
+            >
+              Submit & Raise Issue
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

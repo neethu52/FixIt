@@ -5,6 +5,7 @@ export * from './Badge';
 export * from './StatCard';
 export * from './TicketCard';
 export * from './StatusTimeline';
+export * from './TicketTimeline';
 export * from './Modal';
 export * from './ConfirmDialog';
 export * from './EmptyState';

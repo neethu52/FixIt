@@ -16,6 +16,9 @@ import type {
   IssueTypesResponse,
   CreateIssueTypePayload,
   UpdateIssueTypePayload,
+  TicketTimelineEvent,
+  CreateTimelineEventPayload,
+  TicketTimelineResponse,
 } from './types';
 
 /**
@@ -167,13 +170,31 @@ export async function updateTicketStatus(
  * Reporter acknowledges a resolved maintenance ticket.
  * POST /api/v1/fixit/tickets/{ticket_id}/acknowledge
  */
-export async function acknowledgeTicket(ticketId: string, signal?: AbortSignal): Promise<Ticket> {
+export async function acknowledgeTicket(
+  ticketId: string,
+  signal?: AbortSignal,
+): Promise<Ticket> {
   const data = await apiRequest<Ticket>(
     `/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/acknowledge`,
-    {
-      method: 'POST',
-      signal,
-    }
+    { method: 'POST', signal },
+  );
+  return normalizeTicket(data);
+}
+
+/**
+ * Student raises the issue again for a resolved ticket.
+ * POST /api/v1/fixit/tickets/{ticket_id}/reopen
+ */
+export async function reopenTicket(
+  ticketId: string,
+  comment: string,
+  signal?: AbortSignal,
+): Promise<Ticket> {
+  const formData = new FormData();
+  formData.append('comment', comment);
+  const data = await apiRequest<Ticket>(
+    `/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/reopen`,
+    { method: 'POST', formData, signal },
   );
   return normalizeTicket(data);
 }
@@ -181,28 +202,23 @@ export async function acknowledgeTicket(ticketId: string, signal?: AbortSignal):
 /**
  * Sets or updates the Turnaround Time (TAT) deadline for a ticket.
  * PUT /api/v1/fixit/tickets/{ticket_id}/tat
- *
- * Payload: { "expected_by": "YYYY-MM-DD", "note"?: "..." }
  */
 export async function updateTicketTAT(
   ticketId: string,
   payload: UpdateTATPayload,
-  signal?: AbortSignal
+  signal?: AbortSignal,
 ): Promise<Ticket> {
-  const jsonBody: Record<string, string> = {
-    expected_by: payload.expected_by,
-  };
+  const jsonBody: Record<string, string> = { expected_by: payload.expected_by };
   if (payload.note && payload.note.trim()) {
     jsonBody.note = payload.note.trim();
   }
-
-  const data = await apiRequest<Ticket>(`/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/tat`, {
-    method: 'PUT',
-    json: jsonBody,
-    signal,
-  });
+  const data = await apiRequest<Ticket>(
+    `/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/tat`,
+    { method: 'PUT', json: jsonBody, signal },
+  );
   return normalizeTicket(data);
 }
+
 
 /**
  * Retrieves the list of active issue categories.
@@ -266,4 +282,48 @@ export async function deleteIssueType(issueTypeId: string, signal?: AbortSignal)
     method: 'DELETE',
     signal,
   });
+}
+
+/**
+ * Fetches the historical lifecycle timeline events for a ticket.
+ * GET /api/v1/fixit/tickets/{ticket_id}/timeline
+ */
+export async function getTicketTimeline(
+  ticketId: string,
+  signal?: AbortSignal
+): Promise<TicketTimelineEvent[]> {
+  const data = await apiRequest<TicketTimelineResponse | TicketTimelineEvent[]>(
+    `/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/timeline`,
+    {
+      method: 'GET',
+      signal,
+    }
+  );
+
+  if (Array.isArray(data)) {
+    return data;
+  }
+  if (data && Array.isArray((data as TicketTimelineResponse).items)) {
+    return (data as TicketTimelineResponse).items;
+  }
+  return [];
+}
+
+/**
+ * Appends a new stage milestone or audit comment to the ticket timeline.
+ * POST /api/v1/fixit/tickets/{ticket_id}/timeline
+ */
+export async function addTimelineEvent(
+  ticketId: string,
+  payload: CreateTimelineEventPayload,
+  signal?: AbortSignal
+): Promise<TicketTimelineEvent> {
+  return apiRequest<TicketTimelineEvent>(
+    `/api/v1/fixit/tickets/${encodeURIComponent(ticketId)}/timeline`,
+    {
+      method: 'POST',
+      json: payload,
+      signal,
+    }
+  );
 }

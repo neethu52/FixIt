@@ -1,0 +1,397 @@
+.timelineCard {
+  background: linear-gradient(145deg, rgba(16, 26, 48, 0.72) 0%, rgba(10, 16, 32, 0.72) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem 2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--color-electric-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--color-electric-cyan);
+  box-shadow: 0 0 8px var(--color-electric-cyan);
+  animation: pulse 1.8s infinite;
+}
+
+/* Vertical Timeline Track */
+.timelineTrack {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-left: 0.5rem;
+}
+
+.timelineItem {
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+/* Vertical Connecting Column */
+.nodeColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.nodeCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: all var(--transition-fast);
+  background-color: #0E1629;
+  border: 2px solid var(--color-border-subtle);
+}
+
+/* Stage Variants */
+.nodeCompleted {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.6) 100%);
+  color: #34D399;
+  border: 2px solid #34D399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+}
+
+.nodeCurrent {
+  background: var(--gradient-brand);
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+  animation: currentPulse 2.4s infinite ease-in-out;
+}
+
+.currentDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 8px #FFFFFF;
+}
+
+.nodeUpcoming {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  color: var(--color-text-faint);
+}
+
+.upcomingDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Vertical Connector Line */
+.connectingLine {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  width: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.lineCompleted {
+  background: linear-gradient(180deg, #34D399 0%, #00F2FE 100%);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+.linePending {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.12) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+
+/* Content Area */
+.contentArea {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+  min-width: 0;
+  padding-top: 0.25rem;
+}
+
+.stageHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stageTitle {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.titleCompleted {
+  color: #34D399;
+}
+
+.titleCurrent {
+  color: var(--color-electric-cyan);
+  text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.titleUpcoming {
+  color: var(--color-text-faint);
+}
+
+.currentPill {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-xs);
+  background: rgba(0, 242, 254, 0.15);
+  color: var(--color-electric-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.completedPill {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.1875rem 0.5rem;
+  border-radius: var(--radius-xs);
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.actorTag {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.roleChip {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-muted);
+  padding: 0.1rem 0.375rem;
+  border-radius: var(--radius-xs);
+  text-transform: capitalize;
+}
+
+.relativeTime {
+  font-weight: 700;
+  color: var(--color-electric-cyan);
+}
+
+.exactTime {
+  color: var(--color-text-faint);
+}
+
+.upcomingHint {
+  font-size: 0.8125rem;
+  color: var(--color-text-faint);
+  font-style: italic;
+}
+
+/* Comment Box */
+.commentBox {
+  margin-top: 0.5rem;
+  background: rgba(6, 10, 22, 0.65);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 3.5px solid var(--color-electric-cyan);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.commentCompleted {
+  border-left-color: #34D399;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(52, 211, 153, 0.25);
+  color: #D1FAE5;
+}
+
+/* Skeleton Loading */
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.skeletonItem {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.skeletonNode {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.skeletonBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.skeletonBarLong {
+  height: 16px;
+  width: 60%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeletonBarShort {
+  height: 12px;
+  width: 40%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(0, 242, 254, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 242, 254, 0);
+  }
+}
+
+@keyframes currentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(168, 85, 247, 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .timelineCard {
+    padding: 1.25rem 1rem;
+  }
+
+  .timelineItem {
+    gap: 1rem;
+  }
+
+  .nodeCircle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .connectingLine {
+    top: 34px;
+  }
+}

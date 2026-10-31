@@ -4,40 +4,54 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 3.5rem 1.5rem;
-  background-color: var(--color-bg-card);
-  border: 1px dashed var(--color-border-strong);
+  padding: 3.5rem 2rem;
+  background: linear-gradient(145deg, rgba(16, 26, 48, 0.5) 0%, rgba(9, 15, 29, 0.5) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-xl);
   width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .iconWrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background-color: var(--color-bg-subtle);
-  color: var(--color-text-muted);
-  margin-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--color-electric-cyan);
+  margin-bottom: 1.25rem;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+  animation: cyberFloat 4s ease-in-out infinite;
 }
 
 .title {
-  font-size: 1.125rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text-primary);
-  margin-bottom: 0.375rem;
+  color: #FFFFFF;
+  margin-bottom: 0.5rem;
 }
 
 .description {
   font-size: 0.875rem;
   color: var(--color-text-muted);
-  max-width: 420px;
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
+  max-width: 440px;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
 }
 
 .action {
   margin-top: 0.25rem;
+}
+
+@keyframes cyberFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
 }

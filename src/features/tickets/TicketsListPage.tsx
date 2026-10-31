@@ -114,6 +114,36 @@ export const TicketsListPage: React.FC = () => {
         </Button>
       </div>
 
+      {/* Overdue alert banner — shown when any active ticket is past its deadline */}
+      {tickets.some((t) => t.overdue) && (
+        <div
+          role="alert"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+            border: '1.5px solid #F59E0B',
+            borderRadius: '10px',
+            padding: '0.875rem 1.125rem',
+            marginBottom: '0.5rem',
+            fontSize: '0.9rem',
+            color: '#78350F',
+            fontWeight: 500,
+            animation: 'overdueSlideIn 0.4s ease',
+          }}
+        >
+          <AlertTriangleIcon size={20} style={{ color: '#D97706', flexShrink: 0 }} />
+          <span>
+            <strong>⚠️ Overdue Alert:</strong>{' '}
+            {tickets.filter((t) => t.overdue).length === 1
+              ? 'One of your tickets has passed its resolution deadline and remains unresolved.'
+              : `${tickets.filter((t) => t.overdue).length} of your tickets have passed their resolution deadlines and remain unresolved.`}
+            {' '}Please follow up with the maintenance team.
+          </span>
+        </div>
+      )}
+
       {/* Filter and Search Bar */}
       <div className={styles.filterBar}>
         <form onSubmit={handleSearchSubmit} className={styles.searchBox}>

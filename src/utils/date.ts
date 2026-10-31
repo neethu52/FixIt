@@ -59,18 +59,26 @@ export function getRelativeTime(utcDateString?: string | null): string {
 
     const now = Date.now();
     const diffMs = now - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMs < 0) return 'Just now';
+
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffSecs < 45) return 'Just now';
+    if (diffMins === 1) return '1 minute ago';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    if (diffHours === 1) return '1 hour ago';
+    if (diffHours < 24) return `${diffHours} hours ago`;
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays}d ago`;
+    if (diffDays < 7) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
 
     return formatDateOnlyIST(utcDateString);
   } catch {
     return utcDateString;
   }
 }
+
+export const formatRelativeTime = getRelativeTime;

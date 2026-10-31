@@ -101,7 +101,130 @@ const db = {
       reporter_email: 'student@campus.edu',
     },
   ],
+
+  timelineEvents: [
+    {
+      id: 'evt_01',
+      ticket_id: 'tkt_01a9b8',
+      status: 'reported',
+      stage_name: 'Reported',
+      updated_by: 'Aarav Sharma',
+      user_role: 'student',
+      comment: 'Maintenance issue reported in Main Library Room 204.',
+      created_at: new Date(Date.now() - 3 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_02',
+      ticket_id: 'tkt_01a9b8',
+      status: 'under_review',
+      stage_name: 'Under Review',
+      updated_by: 'System Administrator',
+      user_role: 'admin',
+      comment: 'Complaint verified and prioritized for emergency plumbing dispatch.',
+      created_at: new Date(Date.now() - 2.5 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_03',
+      ticket_id: 'tkt_01a9b8',
+      status: 'in_progress',
+      stage_name: 'In Progress',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Technician dispatched with pipe isolation clamp. Pressure testing in progress.',
+      created_at: new Date(Date.now() - 1.5 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_04',
+      ticket_id: 'tkt_02b8c7',
+      status: 'reported',
+      stage_name: 'Reported',
+      updated_by: 'Dr. K. Raman',
+      user_role: 'faculty',
+      comment: 'AC socket sparking in Seminar Hall 3 reported during presentation.',
+      created_at: new Date(Date.now() - 72 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_05',
+      ticket_id: 'tkt_02b8c7',
+      status: 'under_review',
+      stage_name: 'Under Review',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Electrical team inspected wall socket. Tripped breaker isolated.',
+      created_at: new Date(Date.now() - 60 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_06',
+      ticket_id: 'tkt_02b8c7',
+      status: 'in_progress',
+      stage_name: 'In Progress',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Awaiting replacement 16A modular receptacle from central warehouse.',
+      created_at: new Date(Date.now() - 48 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_07',
+      ticket_id: 'tkt_03c7d6',
+      status: 'reported',
+      stage_name: 'Reported',
+      updated_by: 'Aarav Sharma',
+      user_role: 'student',
+      comment: 'Broken window latch causing rain draft in Computer Lab 4.',
+      created_at: new Date(Date.now() - 96 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_08',
+      ticket_id: 'tkt_03c7d6',
+      status: 'under_review',
+      stage_name: 'Under Review',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Carpenter assigned to inspect window frame and measurements.',
+      created_at: new Date(Date.now() - 72 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_09',
+      ticket_id: 'tkt_03c7d6',
+      status: 'in_progress',
+      stage_name: 'In Progress',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Fitting new heavy-duty brass sash lock and weatherstripping gasket.',
+      created_at: new Date(Date.now() - 36 * 3600000).toISOString(),
+    },
+    {
+      id: 'evt_10',
+      ticket_id: 'tkt_03c7d6',
+      status: 'resolved',
+      stage_name: 'Resolved',
+      updated_by: 'Rajesh Kumar (Chief Maintenance)',
+      user_role: 'office_staff',
+      comment: 'Installed new heavy-duty brass sash lock and weatherstripping gasket. Tested and verified airtight.',
+      created_at: new Date(Date.now() - 12 * 3600000).toISOString(),
+    },
+  ],
 };
+
+const STAGE_NAMES = {
+  reported: 'Reported',
+  under_review: 'Under Review',
+  in_progress: 'In Progress',
+  resolved: 'Resolved',
+  closed: 'Closed',
+};
+
+function getAuthProfile(req) {
+  const auth = req.headers['authorization'] || '';
+  if (auth.includes('admin')) {
+    return getProfileForEmail('admin@campus.edu', true);
+  } else if (auth.includes('maintenance')) {
+    return getProfileForEmail('staff@campus.edu', false);
+  } else if (auth.includes('faculty')) {
+    return getProfileForEmail('faculty@campus.edu', false);
+  }
+  return getProfileForEmail('student@campus.edu', false);
+}
 
 function getProfileForEmail(email, isAdmin = false) {
   const clean = String(email || '').toLowerCase().trim();
@@ -337,8 +460,16 @@ const server = http.createServer(async (req, res) => {
         const pageItems = results.slice(cursor, cursor + limit);
         const nextCursor = cursor + limit < results.length ? String(cursor + limit) : null;
 
+        // Auto-recompute overdue on every response
+        const today = new Date().toISOString().split('T')[0];
+        const nonFinalStatuses = ['open', 'reported', 'under_review', 'in_progress'];
+        const withOverdue = pageItems.map((t) => ({
+          ...t,
+          overdue: t.expected_by && nonFinalStatuses.includes(t.status) ? t.expected_by < today : false,
+        }));
+
         return sendJson(res, 200, {
-          items: pageItems,
+          items: withOverdue,
           count: results.length,
           next_cursor: nextCursor,
         });
@@ -363,6 +494,17 @@ const server = http.createServer(async (req, res) => {
           reporter_email: 'student@campus.edu',
         };
         db.tickets.unshift(newTicket);
+        // Automatically create initial "Reported" timeline event
+        db.timelineEvents.push({
+          id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+          ticket_id: newTicket.id,
+          status: 'reported',
+          stage_name: 'Reported',
+          updated_by: newTicket.reporter_name || 'Reporter',
+          user_role: 'student',
+          comment: `Maintenance issue reported: ${newTicket.title}`,
+          created_at: newTicket.created_at,
+        });
         return sendJson(res, 201, newTicket);
       }
     }
@@ -375,11 +517,36 @@ const server = http.createServer(async (req, res) => {
       if (idx === -1) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
 
       const body = await parseBody(req);
+      const profile = getAuthProfile(req);
       db.tickets[idx].status = body.status;
       db.tickets[idx].maintenance_note = body.note;
       db.tickets[idx].updated_at = new Date().toISOString();
+      if (body.photo || body.photo_url) {
+        db.tickets[idx].photo_url = body.photo || body.photo_url;
+      }
       if (body.status === 'resolved') {
         db.tickets[idx].resolved_at = new Date().toISOString();
+        db.timelineEvents.push({
+          id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+          ticket_id: id,
+          status: 'resolved',
+          stage_name: 'Resolved',
+          updated_by: profile.name,
+          user_role: profile.role,
+          comment: body.note || 'Issue resolved by maintenance technician.',
+          created_at: db.tickets[idx].resolved_at,
+        });
+      } else {
+        db.timelineEvents.push({
+          id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+          ticket_id: id,
+          status: 'in_progress',
+          stage_name: 'In Progress',
+          updated_by: profile.name,
+          user_role: profile.role,
+          comment: body.note || 'Maintenance update logged.',
+          created_at: db.tickets[idx].updated_at,
+        });
       }
       return sendJson(res, 200, db.tickets[idx]);
     }
@@ -391,9 +558,56 @@ const server = http.createServer(async (req, res) => {
       const idx = db.tickets.findIndex((t) => t.id === id);
       if (idx === -1) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
 
+      const profile = getAuthProfile(req);
       db.tickets[idx].status = 'acknowledged';
       db.tickets[idx].acknowledged_at = new Date().toISOString();
-      db.tickets[idx].updated_at = new Date().toISOString();
+      db.tickets[idx].updated_at = db.tickets[idx].acknowledged_at;
+      db.timelineEvents.push({
+        id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+        ticket_id: id,
+        status: 'closed',
+        stage_name: 'Closed',
+        updated_by: profile.name,
+        user_role: profile.role,
+        comment: 'Resolution confirmed and acknowledged by reporter. Ticket officially closed.',
+        created_at: db.tickets[idx].acknowledged_at,
+      });
+      return sendJson(res, 200, db.tickets[idx]);
+    }
+
+    // 7b. POST /api/v1/fixit/tickets/:id/reopen  (student raises issue again)
+    const reopenMatch = pathname.match(/^\/api\/v1\/fixit\/tickets\/([^/]+)\/reopen$/);
+    if (reopenMatch && method === 'POST') {
+      const id = decodeURIComponent(reopenMatch[1]);
+      const idx = db.tickets.findIndex((t) => t.id === id);
+      if (idx === -1) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+
+      const body = await parseBody(req);
+      const profile = getAuthProfile(req);
+      const now = new Date().toISOString();
+
+      // Reset status to open
+      db.tickets[idx].status = 'open';
+      db.tickets[idx].reopened_at = now;
+      db.tickets[idx].updated_at = now;
+      // Clear acknowledged_at so the acknowledge button can reappear only after re-resolution
+      delete db.tickets[idx].acknowledged_at;
+
+      // Add a timeline event
+      db.timelineEvents.push({
+        id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+        ticket_id: id,
+        status: 'under_review',
+        stage_name: 'Issue Raised Again',
+        updated_by: profile.name,
+        user_role: profile.role,
+        comment: body.comment
+          ? String(body.comment).trim()
+          : 'Student reported that the issue has not been resolved satisfactorily.',
+        created_at: now,
+        is_reopen: true,
+      });
+
       return sendJson(res, 200, db.tickets[idx]);
     }
 
@@ -405,9 +619,28 @@ const server = http.createServer(async (req, res) => {
       if (idx === -1) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
 
       const body = await parseBody(req);
+      const today = new Date().toISOString().split('T')[0];
+      const nonFinal = ['open', 'reported', 'under_review', 'in_progress'];
       db.tickets[idx].expected_by = body.expected_by;
       if (body.note) db.tickets[idx].maintenance_note = body.note;
       db.tickets[idx].updated_at = new Date().toISOString();
+      // Recompute overdue
+      db.tickets[idx].overdue =
+        body.expected_by && nonFinal.includes(db.tickets[idx].status)
+          ? body.expected_by < today
+          : false;
+      // Add a timeline event so student sees the deadline
+      const profile = getAuthProfile(req);
+      db.timelineEvents.push({
+        id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+        ticket_id: id,
+        status: db.tickets[idx].status,
+        stage_name: 'Deadline Set',
+        updated_by: profile.name,
+        user_role: profile.role,
+        comment: `Resolution deadline set to ${body.expected_by}${body.note ? ': ' + body.note : '.'}`,
+        created_at: db.tickets[idx].updated_at,
+      });
       return sendJson(res, 200, db.tickets[idx]);
     }
 
@@ -419,7 +652,13 @@ const server = http.createServer(async (req, res) => {
       if (idx === -1) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
 
       if (method === 'GET') {
-        return sendJson(res, 200, db.tickets[idx]);
+        const today = new Date().toISOString().split('T')[0];
+        const nonFinal = ['open', 'reported', 'under_review', 'in_progress'];
+        const t = db.tickets[idx];
+        return sendJson(res, 200, {
+          ...t,
+          overdue: t.expected_by && nonFinal.includes(t.status) ? t.expected_by < today : false,
+        });
       }
       if (method === 'PATCH') {
         const body = await parseBody(req);
@@ -442,6 +681,73 @@ const server = http.createServer(async (req, res) => {
           'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
         });
         return res.end();
+      }
+    }
+
+    // 10. GET & POST /api/v1/fixit/tickets/:id/timeline
+    const timelineMatch = pathname.match(/^\/api\/v1\/fixit\/tickets\/([^/]+)\/timeline$/);
+    if (timelineMatch) {
+      const ticketId = decodeURIComponent(timelineMatch[1]);
+      const ticket = db.tickets.find((t) => t.id === ticketId);
+      if (!ticket) return sendJson(res, 404, { error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+
+      if (method === 'GET') {
+        const events = db.timelineEvents
+          .filter((e) => e.ticket_id === ticketId)
+          .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        return sendJson(res, 200, { items: events, count: events.length });
+      }
+
+      if (method === 'POST') {
+        const body = await parseBody(req);
+        const profile = getAuthProfile(req);
+        const validStages = ['reported', 'under_review', 'in_progress', 'resolved', 'closed'];
+
+        if (!body.status || !validStages.includes(body.status)) {
+          return sendJson(res, 400, {
+            error: { code: 'INVALID_STATUS', message: `Invalid timeline stage. Must be one of: ${validStages.join(', ')}` },
+          });
+        }
+
+        // Authorization check: Only staff or admin can transition review/progress/resolve
+        if (['under_review', 'in_progress', 'resolved'].includes(body.status) && profile.role !== 'office_staff' && profile.role !== 'admin') {
+          return sendJson(res, 403, {
+            error: { code: 'FORBIDDEN', message: 'Only Maintenance Staff or Administrators can advance this stage.' },
+          });
+        }
+
+        const newEvent = {
+          id: `evt_${crypto.randomBytes(4).toString('hex')}`,
+          ticket_id: ticketId,
+          status: body.status,
+          stage_name: STAGE_NAMES[body.status] || body.status,
+          updated_by: profile.name,
+          user_role: profile.role,
+          comment: body.comment ? String(body.comment).trim() : undefined,
+          created_at: new Date().toISOString(),
+        };
+
+        db.timelineEvents.push(newEvent);
+
+        if (body.photo || body.photo_url) {
+          ticket.photo_url = body.photo || body.photo_url;
+        }
+
+        // Sync ticket status
+        if (body.status === 'resolved') {
+          ticket.status = 'resolved';
+          ticket.resolved_at = newEvent.created_at;
+          if (body.comment) ticket.maintenance_note = body.comment;
+        } else if (body.status === 'closed') {
+          ticket.status = 'acknowledged';
+          ticket.acknowledged_at = newEvent.created_at;
+        } else if (body.status === 'in_progress' || body.status === 'under_review') {
+          ticket.status = 'open';
+          if (body.comment) ticket.maintenance_note = body.comment;
+        }
+        ticket.updated_at = newEvent.created_at;
+
+        return sendJson(res, 201, newEvent);
       }
     }
 

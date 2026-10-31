@@ -9,10 +9,11 @@
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-text-secondary);
+  letter-spacing: 0.01em;
 }
 
 .required {
-  color: var(--status-overdue-text);
+  color: #F87171;
   margin-left: 2px;
 }
 
@@ -25,51 +26,61 @@
 
 .input {
   width: 100%;
-  height: 42px;
-  padding: 0.5rem 0.875rem;
+  height: 44px;
+  padding: 0.5rem 0.95rem;
   font-size: 0.9375rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-subtle);
-  background-color: #FFFFFF;
-  color: var(--color-text-primary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(8, 13, 26, 0.7);
+  backdrop-filter: blur(8px);
+  color: #FFFFFF;
   transition: all var(--transition-fast);
   outline: none;
 }
 
+.input:hover:not(:disabled):not(:focus) {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(10, 16, 32, 0.8);
+}
+
 .input:focus {
-  border-color: var(--color-electric-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: var(--color-electric-cyan);
+  background: rgba(12, 20, 40, 0.9);
+  box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.2), 0 0 16px rgba(0, 242, 254, 0.15);
 }
 
 .input:disabled {
-  background-color: var(--color-bg-subtle);
+  background-color: rgba(255, 255, 255, 0.04);
   color: var(--color-text-muted);
+  border-color: rgba(255, 255, 255, 0.06);
   cursor: not-allowed;
 }
 
 .input::placeholder {
   color: var(--color-text-muted);
+  opacity: 0.7;
 }
 
 .hasError .input {
-  border-color: var(--status-overdue-text);
+  border-color: #EF4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
 }
 
 .hasError .input:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.25), 0 0 16px rgba(239, 68, 68, 0.2);
 }
 
 .withIconLeft .input {
-  padding-left: 2.375rem;
+  padding-left: 2.5rem;
 }
 
 .withIconRight .input {
-  padding-right: 2.375rem;
+  padding-right: 2.5rem;
 }
 
 .iconLeft {
   position: absolute;
-  left: 0.75rem;
+  left: 0.875rem;
   display: flex;
   align-items: center;
   pointer-events: none;
@@ -78,7 +89,7 @@
 
 .iconRight {
   position: absolute;
-  right: 0.75rem;
+  right: 0.875rem;
   display: flex;
   align-items: center;
   color: var(--color-text-muted);
@@ -86,7 +97,7 @@
 
 .errorText {
   font-size: 0.75rem;
-  color: var(--status-overdue-text);
+  color: #F87171;
   margin-top: 0.125rem;
 }
 
@@ -94,11 +105,4 @@
   font-size: 0.75rem;
   color: var(--color-text-muted);
   margin-top: 0.125rem;
-}
-
-.textarea {
-  min-height: 90px;
-  height: auto;
-  padding: 0.625rem 0.875rem;
-  resize: vertical;
 }

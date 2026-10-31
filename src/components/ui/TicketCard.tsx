@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './TicketCard.module.css';
 import type { Ticket } from '@/api/types';
 import { Badge } from './Badge';
-import { CalendarIcon, ClockIcon, ImageIcon } from '../icons';
+import { CalendarIcon, ClockIcon, ImageIcon, AlertTriangleIcon } from '../icons';
 import { formatDateToIST, formatDateOnlyIST } from '@/utils/date';
 import { truncateText } from '@/utils/format';
 
@@ -48,6 +48,17 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onClick, classNa
         </div>
       </div>
 
+      {/* Overdue alert banner — shown prominently inside the card */}
+      {isOverdue && (
+        <div className={styles.overdueAlert} role="alert">
+          <AlertTriangleIcon size={15} />
+          <span>
+            ⚠️ <strong>Overdue!</strong> This issue was due by{' '}
+            <strong>{formatDateOnlyIST(ticket.expected_by!)}</strong> and has not been resolved yet.
+          </span>
+        </div>
+      )}
+
       <div className={styles.body}>
         {ticket.photo_url && !imageError ? (
           <div className={styles.thumbnailWrapper}>
@@ -87,7 +98,7 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onClick, classNa
         {ticket.expected_by && (
           <div className={`${styles.expectedGroup} ${isOverdue ? styles.overdue : ''}`}>
             <CalendarIcon size={14} />
-            <span>Target: {formatDateOnlyIST(ticket.expected_by)}</span>
+            <span>Due: {formatDateOnlyIST(ticket.expected_by)}</span>
           </div>
         )}
       </footer>

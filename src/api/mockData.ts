@@ -4,12 +4,14 @@
  * Persists dynamically in localStorage so user interactions (create, edit, status, TAT) are preserved.
  */
 
-import type { Ticket, IssueType, TokenResponse, UserProfile, Role } from './types';
+import type { Ticket, IssueType, TokenResponse, UserProfile, Role, TicketTimelineEvent, TimelineStage } from './types';
+import { ApiError } from './errors';
 
 const STORAGE_KEYS = {
   TICKETS: 'fixit_store:tickets',
   ISSUE_TYPES: 'fixit_store:issue_types',
   USERS: 'fixit_store:users',
+  TIMELINE: 'fixit_store:timeline',
 };
 
 const INITIAL_ISSUE_TYPES: IssueType[] = [
@@ -160,6 +162,164 @@ export function saveStoredTickets(items: Ticket[]) {
   } catch {}
 }
 
+export const INITIAL_TIMELINE_EVENTS: TicketTimelineEvent[] = [
+  {
+    id: 'evt_01',
+    ticket_id: 'tkt_01a9b8',
+    status: 'reported',
+    stage_name: 'Reported',
+    updated_by: 'Aarav Sharma',
+    user_role: 'student',
+    comment: 'Maintenance issue reported in Main Library Room 204.',
+    created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_02',
+    ticket_id: 'tkt_01a9b8',
+    status: 'under_review',
+    stage_name: 'Under Review',
+    updated_by: 'System Administrator',
+    user_role: 'admin',
+    comment: 'Complaint verified and assigned for emergency plumbing review.',
+    created_at: new Date(Date.now() - 2.5 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_03',
+    ticket_id: 'tkt_01a9b8',
+    status: 'in_progress',
+    stage_name: 'In Progress',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Technician dispatched with pipe isolation clamp. Pressure testing in progress.',
+    created_at: new Date(Date.now() - 1.5 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_04',
+    ticket_id: 'tkt_02b8c7',
+    status: 'reported',
+    stage_name: 'Reported',
+    updated_by: 'Dr. K. Raman (Faculty)',
+    user_role: 'faculty',
+    comment: 'AC socket sparking in Seminar Hall 3 reported during presentation.',
+    created_at: new Date(Date.now() - 72 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_05',
+    ticket_id: 'tkt_02b8c7',
+    status: 'under_review',
+    stage_name: 'Under Review',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Electrical team verified wall outlet. Secondary circuit breaker isolated.',
+    created_at: new Date(Date.now() - 60 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_06',
+    ticket_id: 'tkt_02b8c7',
+    status: 'in_progress',
+    stage_name: 'In Progress',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Awaiting replacement 16A modular receptacle from central warehouse.',
+    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_07',
+    ticket_id: 'tkt_03c7d6',
+    status: 'reported',
+    stage_name: 'Reported',
+    updated_by: 'Aarav Sharma',
+    user_role: 'student',
+    comment: 'Broken window latch causing rain draft in Computer Lab 4.',
+    created_at: new Date(Date.now() - 96 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_08',
+    ticket_id: 'tkt_03c7d6',
+    status: 'under_review',
+    stage_name: 'Under Review',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Carpenter assigned to inspect window frame latch.',
+    created_at: new Date(Date.now() - 72 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_09',
+    ticket_id: 'tkt_03c7d6',
+    status: 'in_progress',
+    stage_name: 'In Progress',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Fitting new heavy-duty brass sash lock and weatherstripping gasket.',
+    created_at: new Date(Date.now() - 36 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_10',
+    ticket_id: 'tkt_03c7d6',
+    status: 'resolved',
+    stage_name: 'Resolved',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Installed new heavy-duty brass sash lock and weatherstripping gasket. Tested and verified airtight.',
+    created_at: new Date(Date.now() - 12 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_11',
+    ticket_id: 'tkt_04d6e5',
+    status: 'reported',
+    stage_name: 'Reported',
+    updated_by: 'Aarav Sharma',
+    user_role: 'student',
+    comment: 'Excessive acoustic resonance and vibration from supply duct damper 2.',
+    created_at: new Date(Date.now() - 140 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_12',
+    ticket_id: 'tkt_04d6e5',
+    status: 'in_progress',
+    stage_name: 'In Progress',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'Tightened suspension rods and inserted neoprene anti-vibration pads.',
+    created_at: new Date(Date.now() - 80 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_13',
+    ticket_id: 'tkt_04d6e5',
+    status: 'resolved',
+    stage_name: 'Resolved',
+    updated_by: 'Rajesh Kumar (Chief Maintenance)',
+    user_role: 'office_staff',
+    comment: 'HVAC resonance dampened. Sound levels verified below 45dB.',
+    created_at: new Date(Date.now() - 48 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'evt_14',
+    ticket_id: 'tkt_04d6e5',
+    status: 'closed',
+    stage_name: 'Closed',
+    updated_by: 'Aarav Sharma',
+    user_role: 'student',
+    comment: 'Resolution acknowledged and verified by student. Ticket officially closed.',
+    created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+  },
+];
+
+export function getStoredTimelineEvents(): TicketTimelineEvent[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.TIMELINE);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  saveStoredTimelineEvents(INITIAL_TIMELINE_EVENTS);
+  return INITIAL_TIMELINE_EVENTS;
+}
+
+export function saveStoredTimelineEvents(items: TicketTimelineEvent[]) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.TIMELINE, JSON.stringify(items));
+  } catch {}
+}
+
 /**
  * Generates an authoritative profile based on email address.
  */
@@ -203,6 +363,23 @@ function fileToDataUrl(file: File): Promise<string> {
     reader.onerror = () => reject(new Error('Failed to read image file into data URL'));
     reader.readAsDataURL(file);
   });
+}
+
+/**
+ * Recomputes the `overdue` flag for a ticket based on today's date.
+ * A ticket is overdue if:
+ *  - It has an expected_by date
+ *  - That date is strictly before today (in YYYY-MM-DD)
+ *  - The ticket is not yet resolved or acknowledged
+ */
+function recomputeOverdue(ticket: Ticket): Ticket {
+  const nonFinalStatuses = ['open', 'reported', 'under_review', 'in_progress'];
+  if (!ticket.expected_by || !nonFinalStatuses.includes(ticket.status)) {
+    return { ...ticket, overdue: false };
+  }
+  const today = new Date().toISOString().split('T')[0];
+  const overdue = ticket.expected_by < today;
+  return { ...ticket, overdue };
 }
 
 /**
@@ -332,7 +509,7 @@ export async function simulateBackendRequest<T>(
       const nextIndex = startIndex + limit < tickets.length ? String(startIndex + limit) : null;
 
       return {
-        items: pageItems,
+        items: pageItems.map(recomputeOverdue),
         count: tickets.length,
         next_cursor: nextIndex,
       } as T;
@@ -396,6 +573,22 @@ export async function simulateBackendRequest<T>(
 
       tickets.unshift(newTicket);
       saveStoredTickets(tickets);
+
+      // Automatically create initial "Reported" event in timeline
+      const newTimelineEvent: TicketTimelineEvent = {
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: newTicket.id,
+        status: 'reported',
+        stage_name: 'Reported',
+        updated_by: reporterName,
+        user_role: 'student',
+        comment: `Maintenance issue reported: ${title}`,
+        created_at: newTicket.created_at,
+      };
+      const events = getStoredTimelineEvents();
+      events.push(newTimelineEvent);
+      saveStoredTimelineEvents(events);
+
       return newTicket as T;
     }
   }
@@ -412,7 +605,7 @@ export async function simulateBackendRequest<T>(
     }
 
     if (method === 'GET') {
-      return tickets[idx] as T;
+      return recomputeOverdue(tickets[idx]) as T;
     }
 
     if (method === 'PATCH') {
@@ -479,6 +672,21 @@ export async function simulateBackendRequest<T>(
       };
       tickets[idx] = updated;
       saveStoredTickets(tickets);
+
+      // Log timeline event
+      const events = getStoredTimelineEvents();
+      events.push({
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: id,
+        status: status === 'resolved' ? 'resolved' : 'in_progress',
+        stage_name: status === 'resolved' ? 'Resolved' : 'In Progress',
+        updated_by: 'Rajesh Kumar (Chief Maintenance)',
+        user_role: 'office_staff',
+        comment: note || (status === 'resolved' ? 'Defect repaired and verified.' : 'Maintenance work in progress.'),
+        created_at: updated.updated_at || new Date().toISOString(),
+      });
+      saveStoredTimelineEvents(events);
+
       return updated as T;
     }
   }
@@ -498,8 +706,74 @@ export async function simulateBackendRequest<T>(
       };
       tickets[idx] = updated;
       saveStoredTickets(tickets);
+
+      // Log Closed timeline event
+      const events = getStoredTimelineEvents();
+      events.push({
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: id,
+        status: 'closed',
+        stage_name: 'Closed',
+        updated_by: tickets[idx].reporter_name || 'Reporter',
+        user_role: 'student',
+        comment: 'Resolution confirmed and acknowledged by reporter. Ticket officially closed.',
+        created_at: updated.acknowledged_at || new Date().toISOString(),
+      });
+      saveStoredTimelineEvents(events);
+
       return updated as T;
     }
+  }
+
+  // 7b. Reopen: POST /api/v1/fixit/tickets/:id/reopen  (student raises issue again)
+  const reopenMatch = pathname.match(/\/api\/v1\/fixit\/tickets\/([^/]+)\/reopen/);
+  if (reopenMatch && method === 'POST') {
+    const id = decodeURIComponent(reopenMatch[1]);
+    const tickets = getStoredTickets();
+    const idx = tickets.findIndex((t) => t.id === id);
+    if (idx !== -1) {
+      const now = new Date().toISOString();
+
+      // Grab comment from FormData or JSON body
+      let comment = 'Issue not resolved satisfactorily.';
+      if (options.formData) {
+        const fd = options.formData as FormData;
+        const raw = fd.get('comment');
+        if (raw && String(raw).trim()) comment = String(raw).trim();
+      } else if (options.json && typeof options.json === 'object') {
+        const j = options.json as Record<string, string>;
+        if (j.comment && j.comment.trim()) comment = j.comment.trim();
+      }
+
+      const updated: Ticket = {
+        ...tickets[idx],
+        status: 'open',
+        reopened_at: now,
+        updated_at: now,
+        acknowledged_at: undefined,
+      } as any;
+      tickets[idx] = updated;
+      saveStoredTickets(tickets);
+
+      // Add "Issue Raised Again" timeline event
+      const events = getStoredTimelineEvents();
+      events.push({
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: id,
+        status: 'under_review',
+        stage_name: 'Issue Raised Again',
+        updated_by: updated.reporter_name || 'Student',
+        user_role: 'student',
+        comment,
+        created_at: now,
+        is_reopen: true,
+      } as any);
+      saveStoredTimelineEvents(events);
+
+      return updated as T;
+    }
+    // Ticket not found — return 404-style error
+    throw new ApiError(404, 'NOT_FOUND', 'Ticket not found');
   }
 
   // 8. Update TAT: PUT /api/v1/fixit/tickets/:id/tat
@@ -510,15 +784,114 @@ export async function simulateBackendRequest<T>(
     const idx = tickets.findIndex((t) => t.id === id);
     if (idx !== -1) {
       const { expected_by, note } = options.json;
-      const updated: Ticket = {
+      const today = new Date().toISOString().split('T')[0];
+      const updated: Ticket = recomputeOverdue({
         ...tickets[idx],
         expected_by,
         maintenance_note: note || tickets[idx].maintenance_note,
         updated_at: new Date().toISOString(),
-      };
+        overdue: expected_by < today && !['resolved', 'acknowledged'].includes(tickets[idx].status),
+      });
       tickets[idx] = updated;
       saveStoredTickets(tickets);
+
+      // Record a timeline event so the student can see the deadline was set
+      const events = getStoredTimelineEvents();
+      events.push({
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: id,
+        status: updated.status as any,
+        stage_name: 'Deadline Set',
+        updated_by: 'Admin',
+        user_role: 'admin',
+        comment: `Resolution deadline set to ${expected_by}${note ? ': ' + note : '.'}`,
+        created_at: updated.updated_at || new Date().toISOString(),
+      });
+      saveStoredTimelineEvents(events);
+
       return updated as T;
+    }
+  }
+
+  // 9. Timeline: GET & POST /api/v1/fixit/tickets/:id/timeline
+  const timelineMatch = pathname.match(/\/api\/v1\/fixit\/tickets\/([^/]+)\/timeline/);
+  if (timelineMatch) {
+    const id = decodeURIComponent(timelineMatch[1]);
+    const tickets = getStoredTickets();
+    const ticket = tickets.find((t) => t.id === id);
+    if (!ticket) {
+      throw new Error(`Ticket #${id} not found.`);
+    }
+
+    if (method === 'GET') {
+      const allEvents = getStoredTimelineEvents();
+      const ticketEvents = allEvents
+        .filter((e) => e.ticket_id === id)
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      return { items: ticketEvents, count: ticketEvents.length } as T;
+    }
+
+    if (method === 'POST') {
+      const payload = options.json || {};
+      const status: TimelineStage = payload.status || 'in_progress';
+      const comment: string | undefined = payload.comment?.trim() || undefined;
+
+      const stageNames: Record<TimelineStage, string> = {
+        reported: 'Reported',
+        under_review: 'Under Review',
+        in_progress: 'In Progress',
+        resolved: 'Resolved',
+        closed: 'Closed',
+      };
+
+      const sessionRaw = sessionStorage.getItem('fixit:auth_session') || localStorage.getItem('fixit:auth_session');
+      let authorName = 'System Administrator';
+      let authorRole: Role = 'admin';
+      if (sessionRaw) {
+        try {
+          const user = JSON.parse(sessionRaw)?.user;
+          authorName = user?.name || authorName;
+          authorRole = user?.role || authorRole;
+        } catch {}
+      }
+
+      const newEvent: TicketTimelineEvent = {
+        id: `evt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        ticket_id: id,
+        status,
+        stage_name: stageNames[status] || status,
+        updated_by: authorName,
+        user_role: authorRole,
+        comment,
+        created_at: new Date().toISOString(),
+      };
+
+      const allEvents = getStoredTimelineEvents();
+      allEvents.push(newEvent);
+      saveStoredTimelineEvents(allEvents);
+
+      // Sync ticket
+      const ticketIdx = tickets.findIndex((t) => t.id === id);
+      if (ticketIdx !== -1) {
+        if (payload.photo_url) {
+          tickets[ticketIdx].photo_url = payload.photo_url;
+        }
+        if (status === 'resolved') {
+          tickets[ticketIdx].status = 'resolved';
+          tickets[ticketIdx].resolved_at = newEvent.created_at;
+          if (comment) tickets[ticketIdx].maintenance_note = comment;
+        } else if (status === 'closed') {
+          tickets[ticketIdx].status = 'acknowledged';
+          tickets[ticketIdx].acknowledged_at = newEvent.created_at;
+        } else if (status === 'in_progress' || status === 'under_review') {
+          tickets[ticketIdx].status = 'open';
+          if (comment) tickets[ticketIdx].maintenance_note = comment;
+        }
+        tickets[ticketIdx].updated_at = newEvent.created_at;
+        saveStoredTickets(tickets);
+      }
+
+      return newEvent as T;
     }
   }
 
