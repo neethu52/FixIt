@@ -30,10 +30,10 @@
   padding: 0.5rem 2.5rem 0.5rem 0.95rem;
   font-size: 0.9375rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(8, 13, 26, 0.7);
+  border: 1px solid var(--color-input-border, rgba(255, 255, 255, 0.12));
+  background: var(--color-input-bg, rgba(8, 13, 26, 0.7));
   backdrop-filter: blur(8px);
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   appearance: none;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -41,8 +41,8 @@
 }
 
 .select option {
-  background-color: #0B1222;
-  color: #FFFFFF;
+  background-color: var(--color-bg-card-solid, #2B2732);
+  color: var(--color-text-primary);
   padding: 0.5rem;
 }
 

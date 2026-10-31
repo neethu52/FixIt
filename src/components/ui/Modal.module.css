@@ -56,7 +56,7 @@
 .title {
   font-size: 1.25rem;
   font-weight: 800;
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
 
@@ -69,14 +69,14 @@
   border-radius: var(--radius-md);
   color: var(--color-text-muted);
   transition: all var(--transition-fast);
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--color-bg-hover, rgba(255, 255, 255, 0.05));
   border: 1px solid transparent;
 }
 
 .closeBtn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
+  background-color: var(--color-bg-hover, rgba(255, 255, 255, 0.1));
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-primary);
   transform: rotate(90deg);
 }
 

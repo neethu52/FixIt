@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './TicketCard.module.css';
 import type { Ticket } from '@/api/types';
 import { Badge } from './Badge';
-import { CalendarIcon, ClockIcon, ImageIcon, AlertTriangleIcon } from '../icons';
+import { CalendarIcon, ClockIcon, ImageIcon, AlertTriangleIcon, VideoIcon } from '../icons';
 import { formatDateToIST, formatDateOnlyIST } from '@/utils/date';
 import { truncateText } from '@/utils/format';
 
@@ -61,15 +61,38 @@ export const TicketCard: React.FC<TicketCardProps> = ({ ticket, onClick, classNa
 
       <div className={styles.body}>
         {ticket.photo_url && !imageError ? (
-          <div className={styles.thumbnailWrapper}>
-            <img
-              src={ticket.photo_url}
-              alt={ticket.title}
-              className={styles.thumbnail}
-              loading="lazy"
-              onError={() => setImageError(true)}
-            />
-          </div>
+          ticket.photo_url.startsWith('data:video') ||
+          ticket.photo_url.endsWith('.webm') ||
+          ticket.photo_url.endsWith('.mp4') ||
+          ticket.photo_url.includes('video/') ? (
+            <div className={styles.thumbnailWrapper} style={{ position: 'relative' }}>
+              <video src={ticket.photo_url} className={styles.thumbnail} preload="metadata" />
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'rgba(0,0,0,0.35)',
+                  color: '#00F2FE',
+                  borderRadius: 'inherit',
+                }}
+              >
+                <VideoIcon size={20} />
+              </div>
+            </div>
+          ) : (
+            <div className={styles.thumbnailWrapper}>
+              <img
+                src={ticket.photo_url}
+                alt={ticket.title}
+                className={styles.thumbnail}
+                loading="lazy"
+                onError={() => setImageError(true)}
+              />
+            </div>
+          )
         ) : (
           <div className={styles.thumbnailWrapper} aria-hidden="true" title="No photograph attached">
             <ImageIcon size={24} style={{ color: 'var(--color-text-muted)' }} />

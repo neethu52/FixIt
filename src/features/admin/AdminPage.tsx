@@ -22,8 +22,9 @@ import {
   Pagination,
   useToast,
 } from '@/components/ui';
-import { ShieldIcon, TrashIcon, AlertTriangleIcon, ImageIcon, EyeIcon, XIcon, CalendarIcon } from '@/components/icons';
+import { ShieldIcon, TrashIcon, AlertTriangleIcon, ImageIcon, EyeIcon, XIcon, CalendarIcon, DownloadIcon } from '@/components/icons';
 import { formatDateToIST, formatDateOnlyIST, getTodayDateString } from '@/utils/date';
+import { downloadIssueMedia } from '@/utils/download';
 
 export const AdminPage: React.FC = () => {
   const navigate = useNavigate();
@@ -296,9 +297,23 @@ export const AdminPage: React.FC = () => {
                     <td className={`${styles.td} ${styles.idCol}`}>#{ticket.id.slice(-6).toUpperCase()}</td>
                     <td className={styles.td}>
                       {ticket.photo_url ? (
-                        <div className={styles.photoThumbContainer} onClick={() => setLightboxPhoto(ticket.photo_url || null)} title="Click to view full photo in lightbox">
-                          <img src={ticket.photo_url} alt={ticket.title} className={styles.photoThumb} loading="lazy" onError={(e) => {(e.currentTarget as HTMLElement).style.display = 'none';}} />
-                          <div className={styles.thumbHoverBadge}><EyeIcon size={14} /></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div className={styles.photoThumbContainer} onClick={() => setLightboxPhoto(ticket.photo_url || null)} title="Click to view full photo in lightbox">
+                            <img src={ticket.photo_url} alt={ticket.title} className={styles.photoThumb} loading="lazy" onError={(e) => {(e.currentTarget as HTMLElement).style.display = 'none';}} />
+                            <div className={styles.thumbHoverBadge}><EyeIcon size={14} /></div>
+                          </div>
+                          <button
+                            type="button"
+                            className={styles.miniDownloadBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadIssueMedia(ticket.photo_url!, `admin-ticket-${ticket.id}`);
+                            }}
+                            title="Download issue photo"
+                            aria-label="Download issue photo"
+                          >
+                            <DownloadIcon size={13} />
+                          </button>
                         </div>
                       ) : (
                         <span className={styles.noPhotoTag}><ImageIcon size={13} /> None</span>
@@ -387,7 +402,10 @@ export const AdminPage: React.FC = () => {
                 <img src={inspectingTicket.photo_url} alt={inspectingTicket.title} className={styles.modalPhotoImg} onClick={() => setLightboxPhoto(inspectingTicket.photo_url || null)} title="Click to zoom in lightbox" />
                 <div className={styles.modalPhotoBar}>
                   <span>Click image to open high‑resolution lightbox</span>
-                  <Button variant="ghost" size="sm" style={{ color: '#FFFFFF', padding: '0.2rem 0.5rem', height: 'auto' }} onClick={() => setLightboxPhoto(inspectingTicket.photo_url || null)} icon={<EyeIcon size={12} />}>Zoom Lightbox</Button>
+                  <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                    <Button variant="ghost" size="sm" style={{ color: '#FFFFFF', padding: '0.2rem 0.5rem', height: 'auto' }} onClick={() => downloadIssueMedia(inspectingTicket.photo_url!, `inspect-${inspectingTicket.id}`)} icon={<DownloadIcon size={12} />}>Download</Button>
+                    <Button variant="ghost" size="sm" style={{ color: '#FFFFFF', padding: '0.2rem 0.5rem', height: 'auto' }} onClick={() => setLightboxPhoto(inspectingTicket.photo_url || null)} icon={<EyeIcon size={12} />}>Zoom Lightbox</Button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -458,7 +476,23 @@ export const AdminPage: React.FC = () => {
       {/* Lightbox */}
       {lightboxPhoto && (
         <div className={styles.lightboxBackdrop} onClick={() => setLightboxPhoto(null)} role="dialog" aria-label="Enlarged photo preview">
-          <button type="button" className={styles.lightboxCloseBtn} onClick={() => setLightboxPhoto(null)} aria-label="Close photo preview"><XIcon size={22} /></button>
+          <div className={styles.lightboxTopBar} onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadIssueMedia(lightboxPhoto, 'admin-issue-photo')}
+              icon={<DownloadIcon size={15} />}
+              style={{
+                backgroundColor: 'rgba(25, 22, 30, 0.75)',
+                borderColor: 'rgba(255, 255, 255, 0.25)',
+                color: '#FFFFFF',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              Download Photo
+            </Button>
+            <button type="button" className={styles.lightboxCloseBtn} onClick={() => setLightboxPhoto(null)} aria-label="Close photo preview"><XIcon size={22} /></button>
+          </div>
           <img src={lightboxPhoto} alt="Enlarged issue defect preview" className={styles.lightboxImage} onClick={(e) => e.stopPropagation()} />
         </div>
       )}

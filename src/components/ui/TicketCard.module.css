@@ -138,7 +138,7 @@
 .title {
   font-size: 1.0625rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   line-height: 1.35;
   white-space: nowrap;
   overflow: hidden;
@@ -147,12 +147,12 @@
 }
 
 .card:hover .title {
-  color: var(--color-electric-cyan);
+  color: var(--color-electric-blue-hover);
 }
 
 .description {
   font-size: 0.875rem;
-  color: var(--color-text-muted);
+  color: var(--color-text-secondary);
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;

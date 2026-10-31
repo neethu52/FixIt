@@ -12,3 +12,4 @@ export * from './EmptyState';
 export * from './Skeleton';
 export * from './Toast';
 export * from './Pagination';
+export * from './LiveMediaCapture';

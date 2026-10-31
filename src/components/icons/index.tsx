@@ -11,6 +11,14 @@ export const WrenchIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
   </svg>
 );
 
+export const DownloadIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+);
+
 export const CheckCircleIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
@@ -219,5 +227,77 @@ export const SparklesIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
     <path d="M19 17v4" />
     <path d="M3 5h4" />
     <path d="M17 19h4" />
+  </svg>
+);
+
+export const CameraIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+    <circle cx="12" cy="13" r="3" />
+  </svg>
+);
+
+export const VideoIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <polygon points="23 7 16 12 23 17 23 7" />
+    <rect width="14" height="14" x="1" y="5" rx="2" ry="2" />
+  </svg>
+);
+
+export const MicIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+  </svg>
+);
+
+export const MicOffIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <line x1="2" y1="2" x2="22" y2="22" />
+    <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" />
+    <path d="M5 10v2a7 7 0 0 0 12 5" />
+    <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
+    <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+  </svg>
+);
+
+export const SunIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+  </svg>
+);
+
+export const MoonIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+  </svg>
+);
+
+export const PlayIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
+    <polygon points="6 3 20 12 6 21 6 3" />
+  </svg>
+);
+
+export const StopIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" stroke="none" {...props}>
+    <rect width="16" height="16" x="4" y="4" rx="2" />
+  </svg>
+);
+
+export const RotateCwIcon: React.FC<IconProps> = ({ size = 20, ...props }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+    <path d="M21 3v5h-5" />
   </svg>
 );

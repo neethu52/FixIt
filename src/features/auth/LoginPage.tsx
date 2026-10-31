@@ -20,7 +20,7 @@ export const LoginPage: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login } = useAuth();
+  const { login, isAuthenticated, user, isMaintenanceStaff, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const expiredReason = searchParams.get('reason') === 'expired';
@@ -161,6 +161,38 @@ export const LoginPage: React.FC = () => {
                 : 'Students, Faculty, and Maintenance Staff authenticate with email and team OTP'}
             </p>
           </div>
+
+          {isAuthenticated && user && !expiredReason && (
+            <div
+              style={{
+                marginBottom: '1.25rem',
+                padding: '0.75rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '0.75rem',
+              }}
+            >
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--color-electric-cyan)', fontWeight: 600 }}>Active Session Detected</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                  {user.name} ({user.role})
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(isMaintenanceStaff ? '/maintenance' : isAdmin ? '/admin' : '/dashboard')}
+                icon={<ArrowRightIcon size={14} />}
+                style={{ height: 'auto', padding: '0.35rem 0.75rem' }}
+              >
+                Enter
+              </Button>
+            </div>
+          )}
 
           {expiredReason && (
             <div className={styles.alertBox} style={{ marginBottom: '1.25rem' }}>

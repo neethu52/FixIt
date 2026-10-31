@@ -4,7 +4,7 @@ import styles from './CreateTicketPage.module.css';
 import { getIssueTypes, createTicket } from '@/api/fixit.api';
 import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from '@/api/config';
 import type { IssueType, Ticket } from '@/api/types';
-import { Button, Input, Textarea, Select, Badge } from '@/components/ui';
+import { Button, Input, Textarea, Select, Badge, LiveMediaCapture } from '@/components/ui';
 import {
   UploadIcon,
   CheckIcon,
@@ -13,6 +13,7 @@ import {
   TrashIcon,
   AlertCircleIcon,
   CheckCircleIcon,
+  CameraIcon,
 } from '@/components/icons';
 import { formatFileSize } from '@/utils/format';
 
@@ -31,9 +32,11 @@ export const CreateTicketPage: React.FC = () => {
   const [description, setDescription] = useState('');
   const [issueTypeId, setIssueTypeId] = useState('');
 
-  // Photograph & Preview
+  // Photograph / Live Media & Preview
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [isVideo, setIsVideo] = useState(false);
+  const [showLiveStudio, setShowLiveStudio] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Validation & Submission
@@ -66,22 +69,33 @@ export const CreateTicketPage: React.FC = () => {
     };
   }, []);
 
-  // Handle Photo Selection
+  // Handle Photo & Video Selection from Disk
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate type and size (limit 10MB)
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const validImageTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const validVideoTypes = ['video/webm', 'video/mp4', 'video/quicktime'];
+    const validTypes = [...validImageTypes, ...validVideoTypes];
+
     if (!validTypes.includes(file.type)) {
-      setErrors((prev) => ({ ...prev, photo: 'Please upload a valid image file (JPEG, PNG, or WebP).' }));
+      setErrors((prev) => ({
+        ...prev,
+        photo: 'Please upload a valid image (JPEG, PNG, WebP) or video (WebM, MP4).',
+      }));
       return;
     }
     if (file.size > MAX_UPLOAD_SIZE_BYTES) {
-      setErrors((prev) => ({ ...prev, photo: `Image size exceeds maximum limit of ${MAX_UPLOAD_SIZE_MB}MB.` }));
+      setErrors((prev) => ({
+        ...prev,
+        photo: `Media size exceeds maximum limit of ${MAX_UPLOAD_SIZE_MB}MB.`,
+      }));
       return;
     }
 
+    const isVid = file.type.startsWith('video/');
+    setIsVideo(isVid);
     setErrors((prev) => ({ ...prev, photo: undefined }));
     setPhotoFile(file);
 
@@ -93,9 +107,29 @@ export const CreateTicketPage: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  // Handle Photo Snapshot from Live Camera
+  const handleCapturePhoto = (file: File, previewUrl: string) => {
+    setPhotoFile(file);
+    setPhotoPreview(previewUrl);
+    setIsVideo(false);
+    setShowLiveStudio(false);
+    setErrors((prev) => ({ ...prev, photo: undefined }));
+  };
+
+  // Handle Live Video Recording with Audio
+  const handleRecordVideo = (file: File, previewUrl: string) => {
+    setPhotoFile(file);
+    setPhotoPreview(previewUrl);
+    setIsVideo(true);
+    setShowLiveStudio(false);
+    setErrors((prev) => ({ ...prev, photo: undefined }));
+  };
+
   const handleRemovePhoto = () => {
     setPhotoFile(null);
     setPhotoPreview(null);
+    setIsVideo(false);
+    setShowLiveStudio(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -301,30 +335,55 @@ export const CreateTicketPage: React.FC = () => {
 
         {currentStep === 2 && (
           <>
-            <h2 className={styles.stepTitle}>Step 2: Issue Photograph (Optional but Recommended)</h2>
+            <h2 className={styles.stepTitle}>Step 2: Live Camera & Media Evidence (Optional)</h2>
             <p style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem', marginTop: '-0.75rem' }}>
-              Photographs dramatically accelerate diagnosis and ensure technicians bring the right tools.
+              Capture a live photo snapshot or record a video with microphone audio to accelerate campus diagnosis.
             </p>
 
             <input
               type="file"
               ref={fileInputRef}
               style={{ display: 'none' }}
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/jpeg,image/png,image/webp,video/webm,video/mp4"
               onChange={handleFileChange}
             />
 
-            {photoPreview ? (
+            {showLiveStudio ? (
+              <LiveMediaCapture
+                onCapturePhoto={handleCapturePhoto}
+                onRecordVideo={handleRecordVideo}
+                onClose={() => setShowLiveStudio(false)}
+              />
+            ) : photoPreview ? (
               <div className={styles.previewContainer}>
-                <img src={photoPreview} alt="Issue preview" className={styles.previewImage} />
+                {isVideo ? (
+                  <video
+                    src={photoPreview}
+                    controls
+                    playsInline
+                    className={styles.previewImage}
+                  />
+                ) : (
+                  <img src={photoPreview} alt="Issue preview" className={styles.previewImage} />
+                )}
                 <div className={styles.previewOverlay}>
                   <Button
                     variant="outline"
                     size="sm"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.9)' }}
-                    onClick={() => fileInputRef.current?.click()}
+                    style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#0F172A' }}
+                    onClick={() => setShowLiveStudio(true)}
+                    icon={<CameraIcon size={14} />}
                   >
-                    Replace Image
+                    Live Studio
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.92)', color: '#0F172A' }}
+                    onClick={() => fileInputRef.current?.click()}
+                    icon={<UploadIcon size={14} />}
+                  >
+                    Upload File
                   </Button>
                   <Button
                     variant="danger"
@@ -337,24 +396,74 @@ export const CreateTicketPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div
-                className={styles.dropzone}
-                onClick={() => fileInputRef.current?.click()}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInputRef.current?.click();
-                  }
-                }}
-              >
-                <div className={styles.uploadIconWrapper}>
-                  <UploadIcon size={24} />
+              <>
+                <div className={styles.mediaChoiceBar}>
+                  <div
+                    className={`${styles.mediaChoiceCard} ${styles.mediaChoiceCardActive}`}
+                    onClick={() => setShowLiveStudio(true)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setShowLiveStudio(true);
+                      }
+                    }}
+                  >
+                    <div className={styles.mediaChoiceIconWrapper}>
+                      <CameraIcon size={22} />
+                    </div>
+                    <div className={styles.mediaChoiceDetails}>
+                      <span className={styles.mediaChoiceTitle}>Open Live Camera & Mic</span>
+                      <span className={styles.mediaChoiceSubtitle}>
+                        Capture live photo snapshot or record video with microphone sound
+                      </span>
+                    </div>
+                  </div>
+
+                  <div
+                    className={styles.mediaChoiceCard}
+                    onClick={() => fileInputRef.current?.click()}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        fileInputRef.current?.click();
+                      }
+                    }}
+                  >
+                    <div className={`${styles.mediaChoiceIconWrapper} ${styles.mediaChoiceIconUpload}`}>
+                      <UploadIcon size={22} />
+                    </div>
+                    <div className={styles.mediaChoiceDetails}>
+                      <span className={styles.mediaChoiceTitle}>Upload Saved File</span>
+                      <span className={styles.mediaChoiceSubtitle}>
+                        Select photo (JPEG/PNG) or video (MP4/WebM) from your device
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.uploadText}>Click to upload issue photograph</div>
-                <div className={styles.uploadHint}>Accepted formats: JPEG, PNG, WebP (Max 10MB)</div>
-              </div>
+
+                <div
+                  className={styles.dropzone}
+                  onClick={() => fileInputRef.current?.click()}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                >
+                  <div className={styles.uploadIconWrapper}>
+                    <UploadIcon size={24} />
+                  </div>
+                  <div className={styles.uploadText}>Or drag & drop issue file here</div>
+                  <div className={styles.uploadHint}>Supported: Images (JPEG, PNG, WebP) and Videos (WebM, MP4) up to 10MB</div>
+                </div>
+              </>
             )}
 
             {errors.photo && (
@@ -366,6 +475,11 @@ export const CreateTicketPage: React.FC = () => {
             {photoFile && (
               <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-muted)' }}>
                 Attached: <strong>{photoFile.name}</strong> ({formatFileSize(photoFile.size)})
+                {isVideo && (
+                  <span style={{ marginLeft: '0.5rem', color: 'var(--color-mint-primary)', fontWeight: 600 }}>
+                    • Video with microphone sound
+                  </span>
+                )}
               </div>
             )}
 
@@ -403,13 +517,33 @@ export const CreateTicketPage: React.FC = () => {
               </div>
 
               <div className={styles.reviewItem}>
-                <span className={styles.reviewLabel}>Photograph</span>
+                <span className={styles.reviewLabel}>Media Proof</span>
                 {photoPreview ? (
-                  <div style={{ width: 140, height: 100, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border-subtle)', marginTop: 4 }}>
-                    <img src={photoPreview} alt="Attached issue" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
+                  isVideo ? (
+                    <div style={{ marginTop: 4 }}>
+                      <video
+                        src={photoPreview}
+                        controls
+                        playsInline
+                        style={{
+                          width: '100%',
+                          maxWidth: 320,
+                          maxHeight: 180,
+                          borderRadius: 8,
+                          border: '1px solid var(--color-border-subtle)',
+                        }}
+                      />
+                      <div style={{ fontSize: '0.8125rem', color: 'var(--color-mint-primary)', marginTop: 4, fontWeight: 600 }}>
+                        ✓ Live Video Recording with Microphone Audio
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ width: 140, height: 100, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border-subtle)', marginTop: 4 }}>
+                      <img src={photoPreview} alt="Attached issue" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )
                 ) : (
-                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>No photograph attached</span>
+                  <span style={{ color: 'var(--color-text-muted)', fontSize: '0.875rem' }}>No photograph or video attached</span>
                 )}
               </div>
             </div>

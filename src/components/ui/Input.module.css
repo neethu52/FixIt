@@ -30,22 +30,22 @@
   padding: 0.5rem 0.95rem;
   font-size: 0.9375rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(8, 13, 26, 0.7);
+  border: 1px solid var(--color-input-border, rgba(255, 255, 255, 0.12));
+  background: var(--color-input-bg, rgba(8, 13, 26, 0.7));
   backdrop-filter: blur(8px);
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   transition: all var(--transition-fast);
   outline: none;
 }
 
 .input:hover:not(:disabled):not(:focus) {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(10, 16, 32, 0.8);
+  border-color: var(--color-dusty-coral);
+  background: var(--color-input-bg);
 }
 
 .input:focus {
   border-color: var(--color-electric-cyan);
-  background: rgba(12, 20, 40, 0.9);
+  background: var(--color-input-bg);
   box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.2), 0 0 16px rgba(0, 242, 254, 0.15);
 }
 

@@ -17,9 +17,7 @@
   font-size: 1.875rem;
   font-weight: 800;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #FFFFFF 40%, #38BDF8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--color-text-primary);
 }
 
 .subtitle {
@@ -67,7 +65,7 @@
 }
 
 .stepActive {
-  color: #FFFFFF;
+  color: var(--color-text-primary);
 }
 
 .stepActive .stepNumber {
@@ -112,10 +110,85 @@
 .stepTitle {
   font-size: 1.1875rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border-subtle);
   padding-bottom: 1rem;
   letter-spacing: -0.01em;
+}
+
+/* Photo & Video Choice Bar */
+.mediaChoiceBar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 600px) {
+  .mediaChoiceBar {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mediaChoiceCard {
+  padding: 1.25rem;
+  border-radius: var(--radius-lg);
+  background: var(--bg-card-glass);
+  border: 1px solid var(--color-border-subtle);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.mediaChoiceCard:hover {
+  background: var(--bg-card-glass-hover);
+  border-color: var(--color-electric-blue-border);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.15);
+}
+
+.mediaChoiceCardActive {
+  background: linear-gradient(145deg, rgba(6, 182, 212, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+  border-color: var(--color-electric-cyan);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.25);
+}
+
+.mediaChoiceIconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.35);
+  flex-shrink: 0;
+}
+
+.mediaChoiceIconUpload {
+  background: linear-gradient(135deg, rgba(233, 161, 132, 0.8) 0%, rgba(185, 120, 99, 0.9) 100%);
+  box-shadow: 0 0 15px rgba(185, 120, 99, 0.35);
+}
+
+.mediaChoiceDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.mediaChoiceTitle {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.mediaChoiceSubtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 2px;
 }
 
 /* Photo Upload Box */
@@ -156,7 +229,7 @@
 .uploadText {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #FFFFFF;
+  color: var(--color-text-primary);
   margin-bottom: 0.25rem;
 }
 

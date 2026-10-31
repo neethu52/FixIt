@@ -68,24 +68,8 @@ export const RequireAdminRole: React.FC<{ children: React.ReactNode }> = ({ chil
 };
 
 /**
- * Root index redirector based on authenticated role.
+ * Root index redirector: Always routes to /login first as the initial entry point.
  */
 export const RootRedirect: React.FC = () => {
-  const { isAuthenticated, isMaintenanceStaff, isAdmin, isLoading } = useAuth();
-
-  if (isLoading) return null;
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (isMaintenanceStaff) {
-    return <Navigate to="/maintenance" replace />;
-  }
-
-  if (isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  return <Navigate to="/dashboard" replace />;
+  return <Navigate to="/login" replace />;
 };

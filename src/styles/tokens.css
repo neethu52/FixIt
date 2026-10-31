@@ -61,6 +61,13 @@
   --color-bg-elevated: rgba(55, 50, 61, 0.88);
   --color-bg-hover: rgba(255, 255, 255, 0.08);
 
+  --glass-nav-bg: rgba(35, 31, 39, 0.88);
+  --bg-dropdown-glass: rgba(38, 34, 43, 0.95);
+  --glass-footer-bg: rgba(35, 31, 39, 0.84);
+  --color-grid-line: rgba(255, 255, 255, 0.025);
+  --color-input-bg: rgba(255, 255, 255, 0.06);
+  --color-input-border: rgba(255, 255, 255, 0.14);
+
   /* Translucent Glassmorphism Tokens */
   --glass-bg: rgba(42, 38, 47, 0.8);
   --glass-bg-subtle: rgba(255, 255, 255, 0.05);

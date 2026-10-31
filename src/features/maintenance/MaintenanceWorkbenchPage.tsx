@@ -17,8 +17,10 @@ import {
   ImageIcon,
   EyeIcon,
   XIcon,
+  DownloadIcon,
 } from '@/components/icons';
 import { formatDateToIST, formatDateOnlyIST } from '@/utils/date';
+import { downloadIssueMedia } from '@/utils/download';
 import { UpdateStatusModal } from './UpdateStatusModal';
 import { UpdateTATModal } from './UpdateTATModal';
 
@@ -216,23 +218,37 @@ export const MaintenanceWorkbenchPage: React.FC = () => {
                     </td>
                     <td className={styles.td}>
                       {ticket.photo_url ? (
-                        <div
-                          className={styles.photoThumbContainer}
-                          onClick={() => setLightboxPhoto(ticket.photo_url || null)}
-                          title="Click to view defect photo in lightbox"
-                        >
-                          <img
-                            src={ticket.photo_url}
-                            alt={ticket.title}
-                            className={styles.photoThumb}
-                            loading="lazy"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLElement).style.display = 'none';
-                            }}
-                          />
-                          <div className={styles.thumbHoverBadge}>
-                            <EyeIcon size={14} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div
+                            className={styles.photoThumbContainer}
+                            onClick={() => setLightboxPhoto(ticket.photo_url || null)}
+                            title="Click to view defect photo in lightbox"
+                          >
+                            <img
+                              src={ticket.photo_url}
+                              alt={ticket.title}
+                              className={styles.photoThumb}
+                              loading="lazy"
+                              onError={(e) => {
+                                (e.currentTarget as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                            <div className={styles.thumbHoverBadge}>
+                              <EyeIcon size={14} />
+                            </div>
                           </div>
+                          <button
+                            type="button"
+                            className={styles.miniDownloadBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              downloadIssueMedia(ticket.photo_url!, `defect-ticket-${ticket.id}`);
+                            }}
+                            title="Download issue photo"
+                            aria-label="Download issue photo"
+                          >
+                            <DownloadIcon size={13} />
+                          </button>
                         </div>
                       ) : (
                         <span className={styles.noPhotoTag}>
@@ -377,14 +393,30 @@ export const MaintenanceWorkbenchPage: React.FC = () => {
           role="dialog"
           aria-label="Enlarged defect photo preview"
         >
-          <button
-            type="button"
-            className={styles.lightboxCloseBtn}
-            onClick={() => setLightboxPhoto(null)}
-            aria-label="Close photo preview"
-          >
-            <XIcon size={22} />
-          </button>
+          <div className={styles.lightboxTopBar} onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadIssueMedia(lightboxPhoto, 'fixit-defect-photo')}
+              icon={<DownloadIcon size={15} />}
+              style={{
+                backgroundColor: 'rgba(25, 22, 30, 0.75)',
+                borderColor: 'rgba(255, 255, 255, 0.25)',
+                color: '#FFFFFF',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              Download Defect Photo
+            </Button>
+            <button
+              type="button"
+              className={styles.lightboxCloseBtn}
+              onClick={() => setLightboxPhoto(null)}
+              aria-label="Close photo preview"
+            >
+              <XIcon size={22} />
+            </button>
+          </div>
           <img
             src={lightboxPhoto}
             alt="Enlarged issue defect preview"

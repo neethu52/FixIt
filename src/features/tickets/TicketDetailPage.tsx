@@ -28,9 +28,12 @@ import {
   UploadIcon,
   ImageIcon,
   EyeIcon,
+  VideoIcon,
   XIcon,
+  DownloadIcon,
 } from '@/components/icons';
 import { formatDateToIST, formatDateOnlyIST } from '@/utils/date';
+import { downloadIssueMedia } from '@/utils/download';
 import { EditTicketModal } from './EditTicketModal';
 import { UpdateStatusModal } from '../maintenance/UpdateStatusModal';
 import { UpdateTATModal } from '../maintenance/UpdateTATModal';
@@ -460,30 +463,70 @@ export const TicketDetailPage: React.FC = () => {
             </div>
 
             {ticket.photo_url && !imageError ? (
-              <div className={styles.photoFrame}>
-                <img
-                  src={ticket.photo_url}
-                  alt={ticket.title}
-                  className={styles.photoImg}
-                  onClick={() => setIsLightboxOpen(true)}
-                  onError={() => setImageError(true)}
-                  title="Click to zoom in full resolution lightbox"
-                />
-                <div className={styles.photoOverlayBar}>
-                  <span>Click image to view in full resolution</span>
-                  <div className={styles.photoOverlayActions}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      style={{ color: '#FFFFFF' }}
-                      onClick={() => setIsLightboxOpen(true)}
-                      icon={<EyeIcon size={14} />}
-                    >
-                      Lightbox
-                    </Button>
+              ticket.photo_url.startsWith('data:video') ||
+              ticket.photo_url.endsWith('.webm') ||
+              ticket.photo_url.endsWith('.mp4') ||
+              ticket.photo_url.includes('video/') ? (
+                <div className={styles.photoFrame} style={{ padding: 0 }}>
+                  <video
+                    src={ticket.photo_url}
+                    controls
+                    playsInline
+                    style={{ width: '100%', maxHeight: 440, borderRadius: 12, display: 'block', backgroundColor: '#000000' }}
+                  />
+                  <div className={styles.photoOverlayBar}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <VideoIcon size={14} style={{ color: 'var(--color-electric-cyan)' }} />
+                      <span>Live Video Recording with Audio Playback</span>
+                    </span>
+                    <div className={styles.photoOverlayActions}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        style={{ color: '#FFFFFF' }}
+                        onClick={() => downloadIssueMedia(ticket.photo_url!, `ticket-${ticket.id}-video`)}
+                        icon={<DownloadIcon size={14} />}
+                      >
+                        Download Video
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className={styles.photoFrame}>
+                  <img
+                    src={ticket.photo_url}
+                    alt={ticket.title}
+                    className={styles.photoImg}
+                    onClick={() => setIsLightboxOpen(true)}
+                    onError={() => setImageError(true)}
+                    title="Click to zoom in full resolution lightbox"
+                  />
+                  <div className={styles.photoOverlayBar}>
+                    <span>Click image to view in full resolution</span>
+                    <div className={styles.photoOverlayActions}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        style={{ color: '#FFFFFF' }}
+                        onClick={() => downloadIssueMedia(ticket.photo_url!, `ticket-${ticket.id}-photo`)}
+                        icon={<DownloadIcon size={14} />}
+                      >
+                        Download
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        style={{ color: '#FFFFFF' }}
+                        onClick={() => setIsLightboxOpen(true)}
+                        icon={<EyeIcon size={14} />}
+                      >
+                        Lightbox
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )
             ) : ticket.photo_url && imageError ? (
               <div
                 className={styles.emptyPhotoDropzone}
@@ -620,14 +663,30 @@ export const TicketDetailPage: React.FC = () => {
           role="dialog"
           aria-label="Enlarged issue photograph"
         >
-          <button
-            type="button"
-            className={styles.lightboxClose}
-            onClick={() => setIsLightboxOpen(false)}
-            aria-label="Close enlarged view"
-          >
-            <XIcon size={24} />
-          </button>
+          <div className={styles.lightboxTopBar} onClick={(e) => e.stopPropagation()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadIssueMedia(ticket.photo_url!, `ticket-${ticket.id}-photo`)}
+              icon={<DownloadIcon size={15} />}
+              style={{
+                backgroundColor: 'rgba(25, 22, 30, 0.75)',
+                borderColor: 'rgba(255, 255, 255, 0.25)',
+                color: '#FFFFFF',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
+              Download Original
+            </Button>
+            <button
+              type="button"
+              className={styles.lightboxClose}
+              onClick={() => setIsLightboxOpen(false)}
+              aria-label="Close enlarged view"
+            >
+              <XIcon size={24} />
+            </button>
+          </div>
           <img
             src={ticket.photo_url}
             alt={ticket.title}
